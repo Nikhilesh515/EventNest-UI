@@ -39,5 +39,5 @@ export function useMyEvents(status: EventStatus | 'all') {
     [mine, status],
   )
 
-  return { ...query, data: filtered, counts }
+  return { ...query, data: filtered, counts, total: mine.length }
 }
