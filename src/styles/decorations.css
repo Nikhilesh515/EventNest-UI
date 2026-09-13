@@ -1,0 +1,126 @@
+/* ==========================================================================
+   7. DECORATIONS — pattern, plate, washi, photo corners, torn edge, grain
+   ========================================================================== */
+.pattern { background-size: var(--pattern-size, 40px 40px); background-repeat: repeat; }
+.pattern--chiyogami-hana { background-image: var(--pattern-chiyogami-hana); --pattern-size: 48px 48px; }
+.pattern--chiyogami-asa  { background-image: var(--pattern-chiyogami-asa);  --pattern-size: 40px 40px; }
+.pattern--polka-sakura   { background-image: var(--pattern-polka-sakura);   --pattern-size: 32px 32px; }
+.pattern--polka-sora     { background-image: var(--pattern-polka-sora);     --pattern-size: 32px 32px; }
+.pattern--tatami         { background-image: var(--pattern-tatami);         --pattern-size: auto; }
+.pattern--asanoha        { background-image: var(--pattern-asanoha);        --pattern-size: auto; }
+
+.plate {
+  background: var(--surface-paper);
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-paper);
+}
+
+.washi {
+  --washi-color: var(--sakura-200);
+  position: relative; height: 26px; width: 100%;
+  background:
+    linear-gradient(105deg, transparent 30%, rgba(255,255,255,.35) 42%, transparent 55%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 3px, transparent 3px 9px),
+    var(--washi-color);
+  clip-path: polygon(
+    0 22%, 3% 6%, 7% 20%, 12% 4%, 18% 18%, 24% 5%, 31% 19%, 38% 6%,
+    46% 20%, 54% 5%, 62% 18%, 69% 6%, 76% 20%, 83% 6%, 89% 18%, 95% 7%, 100% 22%,
+    100% 78%, 95% 94%, 89% 80%, 83% 95%, 76% 80%, 69% 95%, 62% 81%, 54% 95%,
+    46% 80%, 38% 95%, 31% 81%, 24% 95%, 18% 82%, 12% 96%, 7% 80%, 3% 94%, 0 78%
+  );
+  transform: rotate(-0.8deg); opacity: .95; pointer-events: none;
+}
+.washi--center { width: 180px; margin-inline: auto; }
+.washi--sakura { --washi-color: #FFD1DC; }
+.washi--sora { --washi-color: #A8D8EA; }
+.washi--yamabuki { --washi-color: #FFE066; }
+.washi--shu { --washi-color: #FF6B6B; }
+.washi--matcha { --washi-color: #B5D6A7; }
+.washi--divider { margin-block: var(--space-4); }
+
+/* page-doc tape */
+.page-doc__tape {
+  position: absolute; inset-block-start: -11px; inset-inline-start: 50%;
+  translate: -50% 0;
+  inline-size: var(--tape-page-w); block-size: var(--tape-page-h);
+  z-index: var(--z-tape); pointer-events: none;
+  transform: rotate(-2deg);
+  transition: transform var(--dur-tape-peel) var(--ease-rip);
+}
+.page-doc__corner-tape {
+  position: absolute; inset-block-start: -10px; inset-inline-end: 24px;
+  inline-size: var(--tape-corner-w); block-size: var(--tape-corner-h);
+  z-index: var(--z-tape); pointer-events: none;
+  transform: rotate(-4deg);
+  transition: transform var(--dur-tape-peel) var(--ease-rip);
+}
+.page-doc:hover .page-doc__tape, .page-doc:focus-within .page-doc__tape {
+  transform: rotate(calc(-2deg - var(--tape-peel-rot))) translateY(-2px);
+}
+.page-doc:hover .page-doc__corner-tape, .page-doc:focus-within .page-doc__corner-tape {
+  transform: rotate(calc(-4deg - var(--tape-peel-rot))) translateY(-2px);
+}
+
+/* photo corners */
+.photo-corners { position: absolute; inset: 0; pointer-events: none; }
+.photo-corners span {
+  position: absolute; inline-size: var(--photo-corner); block-size: var(--photo-corner);
+  border-style: solid; border-color: var(--sumi-400); opacity: .55;
+}
+.photo-corners span:nth-child(1) { inset-block-start: 8px; inset-inline-start: 8px; border-width: 3px 0 0 3px; }
+.photo-corners span:nth-child(2) { inset-block-start: 8px; inset-inline-end: 8px; border-width: 3px 3px 0 0; }
+.photo-corners span:nth-child(3) { inset-block-end: 8px; inset-inline-start: 8px; border-width: 0 0 3px 3px; }
+.photo-corners span:nth-child(4) { inset-block-end: 8px; inset-inline-end: 8px; border-width: 0 3px 3px 0; }
+[data-theme="dark"] .photo-corners span { border-color: var(--indigo-200); }
+
+.torn-edge {
+  height: 18px; background: var(--surface-paper);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='18' preserveAspectRatio='none'%3E%3Cpath d='M0 18V10l10-4 9 5 11-7 10 6 12-8 10 5 11-4 12 7 10-5 12 4 11-6 12 6V18Z' fill='%23000'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='18' preserveAspectRatio='none'%3E%3Cpath d='M0 18V10l10-4 9 5 11-7 10 6 12-8 10 5 11-4 12 7 10-5 12 4 11-6 12 6V18Z' fill='%23000'/%3E%3C/svg%3E");
+  -webkit-mask-size: 120px 18px; mask-size: 120px 18px;
+  -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+}
+[data-density="work"] .torn-edge, [data-density="admin"] .torn-edge {
+  height: 0; border-top: 2px dashed var(--border-dashed); background: none;
+  -webkit-mask-image: none; mask-image: none;
+}
+.work-seam { border-top: 2px dashed var(--border-dashed); margin-block: var(--space-4); }
+
+.paper-grain {
+  position: fixed; inset: 0; z-index: var(--z-pattern);
+  pointer-events: none; opacity: var(--pattern-grain-opacity, .035);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+  mix-blend-mode: var(--pattern-grain-blend, multiply);
+}
+
+.hanko {
+  display: inline-grid; place-items: center;
+  width: 26px; height: 26px; border-radius: var(--radius-hanko);
+  background: var(--shu-500); color: var(--paper-raised);
+  font-family: var(--font-round); font-weight: 700; font-size: 14px;
+  transform: rotate(-6deg);
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.35), 0 1px 0 rgba(51,49,46,.25);
+  user-select: none; flex: none;
+}
+.hanko--lg { width: 40px; height: 40px; font-size: 22px; border-radius: 9px; }
+.hanko--sm { width: 20px; height: 20px; font-size: 11px; border-radius: 5px; }
+.hanko.is-thumping { animation: hanko-thump 240ms var(--ease-press) forwards; }
+
+.confetti-layer {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  z-index: var(--z-confetti);
+}
+.confetti-piece {
+  position: absolute; width: 6px; height: 10px; top: 34%; left: 50%;
+  border-radius: 1px; will-change: transform, opacity;
+  animation: confetti-fall var(--dur-slower) var(--ease-paper) forwards;
+}
+.confetti-piece:nth-child(5n+1) { background: var(--sakura-300); }
+.confetti-piece:nth-child(5n+2) { background: var(--sora-300); }
+.confetti-piece:nth-child(5n+3) { background: var(--yamabuki-300); }
+.confetti-piece:nth-child(5n+4) { background: var(--wakatake-300); }
+.confetti-piece:nth-child(5n)   { background: var(--fuji-300); }
+
+.kanji-watermark { font-family: var(--font-round); font-weight: 700; user-select: none; line-height: 1; }
+

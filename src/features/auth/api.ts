@@ -1,0 +1,55 @@
+import { apiClient } from '@/api/client'
+import { AUTH, USERS } from '@/api/endpoints'
+import { toAuthResponse } from '@/types'
+import type {
+  AuthResponse,
+  AuthResponseDto,
+  LoginRequest,
+  LogoutRequestDto,
+  RefreshRequestDto,
+  RegisterRequest,
+  UserDto,
+} from '@/types'
+
+interface ApiUserDto {
+  id: string
+  email: string
+  displayName: string
+  roleName: UserDto['role']
+  isActive: boolean
+}
+
+function toUser(raw: ApiUserDto): UserDto {
+  return {
+    id: raw.id,
+    email: raw.email,
+    displayName: raw.displayName,
+    role: raw.roleName,
+    isActive: raw.isActive,
+    createdAt: null,
+  }
+}
+
+export async function login(body: LoginRequest): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponseDto>(AUTH.login, body)
+  return toAuthResponse({ ...data, user: toUser(data.user as unknown as ApiUserDto) })
+}
+
+export async function register(body: RegisterRequest): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponseDto>(AUTH.register, body)
+  return toAuthResponse({ ...data, user: toUser(data.user as unknown as ApiUserDto) })
+}
+
+export async function refresh(body: RefreshRequestDto): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponseDto>(AUTH.refresh, body)
+  return toAuthResponse({ ...data, user: toUser(data.user as unknown as ApiUserDto) })
+}
+
+export async function logout(body: LogoutRequestDto): Promise<void> {
+  await apiClient.post(AUTH.logout, body)
+}
+
+export async function getCurrentUser(): Promise<UserDto> {
+  const { data } = await apiClient.get<ApiUserDto>(USERS.me)
+  return toUser(data)
+}

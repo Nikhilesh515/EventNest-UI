@@ -1,0 +1,16 @@
+/* Events tools band — the frozen controllers gave themselves tight internal padding, which
+   reads as flush-to-the-corner in the sticky night-mode band. Scoped to `.sheet-tools` so the
+   tab chips and Filters/sort controls gain breathing room without altering those components
+   elsewhere. Documented deviation; see fidelity-fixes/01-events.md (D14). */
+.sheet-tools {
+  padding-inline: var(--space-3);
+}
+.sheet-tools .tab {
+  padding-inline: var(--space-5);
+}
+.sheet-tools .btn--sm {
+  padding-inline: var(--space-4);
+}
+.sheet-tools .select--inline {
+  padding-inline-start: var(--space-5);
+}

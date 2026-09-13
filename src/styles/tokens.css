@@ -1,0 +1,637 @@
+/* ==========================================================================
+   EventNest — Kawaii Matsuri · Scrapbook Album · tokens.css
+   Spec Section 17. :root = festival day · [data-theme="dark"] = night stalls
+   Inherited visual tokens + NEW album layout tokens (block 26).
+   ========================================================================== */
+
+:root {
+  /* ============================================================
+     1. TYPOGRAPHY — FAMILIES                                   (inherited)
+     ============================================================ */
+  --font-display: "Dela Gothic One", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+  --font-round:   "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
+  --font-body:    "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Yu Gothic UI", system-ui, sans-serif;
+
+  /* ============================================================
+     2. TYPOGRAPHY — SCALE                              (inherited)
+     ============================================================ */
+  --type-display-xl: 3.5rem;    /* 56  w400 lh1.02 ls-0.02 display */
+  --type-display-l:  2.75rem;   /* 44  w400 lh1.05 ls-0.02 display */
+  --type-display-m:  2.125rem;  /* 34  w400 lh1.08 ls-0.01 display */
+  --type-display-s:  1.6875rem; /* 27  w400 lh1.12 ls-0.01 display */
+  --type-h1:         2rem;      /* 32  w700 lh1.20 round */
+  --type-h2:         1.625rem;  /* 26  w700 lh1.25 round */
+  --type-h3:         1.3125rem; /* 21  w700 lh1.30 round */
+  --type-h4:         1.125rem;  /* 18  w700 lh1.35 round */
+  --type-body-l:     1.125rem;  /* 18  w500 lh1.60 body */
+  --type-body:       1rem;      /* 16  w400 lh1.65 body */
+  --type-body-s:     0.875rem;  /* 14  w400 lh1.60 body */
+  --type-caption:    0.8125rem; /* 13  w500 lh1.50 body */
+  --type-label:      0.875rem;  /* 14  w700 lh1.35 round */
+  --type-overline:   0.75rem;   /* 12  w700 lh1.40 round uppercase */
+  --type-badge:      0.75rem;   /* 12  w700 lh1.20 round */
+  --type-mono-num:   1rem;      /* 16  w700 lh1.20 body tabular */
+  --type-kanji-xl:   4.5rem;    /* 72  w700 lh1.0 round */
+  --type-kanji-l:    2.5rem;    /* 40  w700 lh1.0 round */
+  --type-kanji-m:    1.375rem;  /* 22  w700 lh1.0 round */
+
+  --lh-tight: 1.2;
+  --lh-body: 1.65;
+  --letter-tight: -0.02em;
+  --letter-normal: 0;
+  --letter-wide: 0.10em;
+
+  /* ============================================================
+     3. SPACING (8px paper-grain module)                (inherited)
+     ============================================================ */
+  --space-0: 0;
+  --space-1: 0.25rem;  /* 4 */
+  --space-2: 0.5rem;   /* 8 */
+  --space-3: 0.75rem;  /* 12 */
+  --space-4: 1rem;     /* 16 */
+  --space-5: 1.25rem;  /* 20 */
+  --space-6: 1.5rem;   /* 24 */
+  --space-8: 2rem;     /* 32 */
+  --space-10: 2.5rem;  /* 40 */
+  --space-12: 3rem;    /* 48 */
+  --space-16: 4rem;    /* 64 */
+  --space-20: 5rem;    /* 80 */
+  --space-24: 6rem;    /* 96 */
+  --space-32: 8rem;    /* 128 */
+  --row-h: 56px;
+  --row-h-mobile: 64px;
+
+  /* ============================================================
+     4. RADII                                           (inherited)
+     ============================================================ */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+  --radius-sticker: 999px;
+  --radius-hanko: 7px;
+  --radius-seal: 50%;
+
+  /* ============================================================
+     5. BORDERS                                         (inherited)
+     ============================================================ */
+  --border-w: 2px;
+  --border-w-thin: 1.5px;
+  --border-w-hair: 1px;
+  --border-style-solid: solid;
+  --border-style-dash: dashed;
+  --border-style-dot: dotted;
+  --border-dashed-pattern: repeating-linear-gradient(90deg, var(--border-dashed) 0 6px, transparent 6px 12px);
+
+  /* ============================================================
+     6. SHADOWS / ELEVATION (paper stacking)            (inherited)
+     ============================================================ */
+  --shadow-paper:   0 1px 0 rgba(51, 49, 46, .06);
+  --shadow-lift:    0 2px 0 rgba(51, 49, 46, .07), 0 6px 0 -2px rgba(51, 49, 46, .05);
+  --shadow-raised:  0 3px 0 rgba(51, 49, 46, .08), 0 12px 0 -4px rgba(51, 49, 46, .06);
+  --shadow-modal:   0 4px 0 rgba(51, 49, 46, .10), 0 20px 0 -8px rgba(51, 49, 46, .08);
+  --shadow-sticker: 0 2px 0 rgba(51, 49, 46, .18);
+  --elev-0: none;
+  --elev-1: var(--shadow-paper);
+  --elev-2: var(--shadow-lift);
+  --elev-3: var(--shadow-raised);
+  --elev-4: var(--shadow-modal);
+  --elev-sticker: var(--shadow-sticker);
+  --shadow-glow-coral: none;
+  --shadow-glow-sky: none;
+  --shadow-glow-sun: none;
+  --shadow-glow-leaf: none;
+
+  /* ============================================================
+     7. LAYOUT / CONTAINERS / GRID                 (inherited)
+     ============================================================ */
+  --container-narrow: 640px;
+  --container-form: 760px;
+  --container-content: 1080px;
+  --container-wide: 1280px;
+  --container-admin: 1180px;
+  --container-full: 100%;
+  --grid-gutter: 16px;
+  --grid-cols: 12;
+  --nav-h: 64px;
+  --announce-h: 34px;
+  --tile-w: 1;
+  --tile-h: 1;
+  --deco-opacity: 1;
+  --deco-mascot-scale: 1;
+  --deco-rotate: 1;
+
+  /* ============================================================
+     8. Z-INDEX (extended for the album shell)        (inherited + NEW)
+     ============================================================ */
+  --z-base: 0;
+  --z-pattern: -1;
+  --z-sticky: 10;
+  --z-nav: 30;
+  --z-drawer: 40;
+  --z-dropdown: 50;
+  --z-tape: 55;
+  --z-sticker: 60;
+  --z-modal-backdrop: 70;
+  --z-modal: 80;
+  --z-toast: 90;
+  --z-confetti: 100;
+  --z-focus-skip: 110;
+  /* NEW layout z-index */
+  --z-crease: 1;
+  --z-tile: 2;
+  --z-tile-hover: 20;
+  --z-rail: 35;
+  --z-tabbar: 45;
+
+  /* ============================================================
+     9. MOTION — DURATION                             (inherited)
+     ============================================================ */
+  --dur-instant: 60ms;
+  --dur-fast: 90ms;
+  --dur-quick: 140ms;
+  --dur-base: 220ms;
+  --dur-medium: 320ms;
+  --dur-slow: 420ms;
+  --dur-slower: 640ms;
+  --dur-idle-wobble: 3200ms;
+  --dur-idle-beckon: 1600ms;
+  --dur-idle-koi: 2400ms;
+  --dur-idle-nod: 2800ms;
+
+  /* ============================================================
+     10. MOTION — EASING                              (inherited)
+     ============================================================ */
+  --ease-paper: cubic-bezier(.22, 1, .36, 1);
+  --ease-press: cubic-bezier(.34, 1.56, .64, 1);
+  --ease-snap: cubic-bezier(.2, .8, .2, 1);
+  --ease-rip: cubic-bezier(.65, 0, .35, 1);
+  --ease-bob: cubic-bezier(.45, 0, .55, 1);
+  --ease-anticipate: cubic-bezier(.6, -.28, .74, .05);
+
+  /* ============================================================
+     11. PRIMITIVE RAMPS                                (inherited)
+     ============================================================ */
+  --cream-50: #FFFDF8; --cream-100: #FFF9F0; --cream-200: #F6EDDD; --cream-300: #ECDFC8;
+  --cream-400: #DAC9AC; --cream-500: #C3AE8C; --cream-600: #9E8A69; --cream-700: #6B655C; --cream-800: #33312E;
+
+  --sumi-50: #F4F2EF; --sumi-100: #E7E3DE; --sumi-200: #CBC5BD; --sumi-300: #A9A29A;
+  --sumi-400: #8A8279; --sumi-500: #6B655C; --sumi-600: #4E4A44; --sumi-700: #3D3A35; --sumi-800: #33312E;
+
+  --sakura-50: #FFF5F8; --sakura-100: #FFE9F0; --sakura-200: #FFD1DC; --sakura-300: #FFB8CB;
+  --sakura-400: #FF93B0; --sakura-500: #F76E92; --sakura-600: #D8496F; --sakura-700: #A83154; --sakura-800: #7A2240;
+
+  --sora-50: #F2FAFD; --sora-100: #E2F3F9; --sora-200: #A8D8EA; --sora-300: #85C7DF;
+  --sora-400: #5FB0CE; --sora-500: #3E93B8; --sora-600: #2E7394; --sora-700: #235970; --sora-800: #193F50;
+
+  --wakatake-50: #F3FBF7; --wakatake-100: #E4F4EC; --wakatake-200: #7FC8A9; --wakatake-300: #5FB892;
+  --wakatake-400: #41A077; --wakatake-500: #2E835E; --wakatake-600: #236848; --wakatake-700: #1A4E36; --wakatake-800: #123626;
+
+  --yamabuki-50: #FFFBEB; --yamabuki-100: #FFF6CC; --yamabuki-200: #FFE066; --yamabuki-300: #FFD633;
+  --yamabuki-400: #F5C400; --yamabuki-500: #D6A800; --yamabuki-600: #8A6D00; --yamabuki-700: #5A4A00; --yamabuki-800: #3D3200;
+
+  --shu-50: #FFF3F3; --shu-100: #FFE4E4; --shu-200: #FFB8B8; --shu-300: #FFA6A6;
+  --shu-400: #FF8A8A; --shu-500: #FF6B6B; --shu-600: #E04B4B; --shu-700: #B23434; --shu-800: #7E2222;
+
+  --matcha-50: #F6FAF2; --matcha-100: #EAF4E0; --matcha-200: #B5D6A7; --matcha-300: #9CC78A;
+  --matcha-400: #7FB26B; --matcha-500: #5F924C; --matcha-600: #487138; --matcha-700: #355327; --matcha-800: #24381A;
+
+  --fuji-50: #FAF8FE; --fuji-100: #F1ECFB; --fuji-200: #C9B6E4; --fuji-300: #B49ED8;
+  --fuji-400: #9C82C9; --fuji-500: #8367B5; --fuji-600: #6A4F98; --fuji-700: #513B75; --fuji-800: #382852;
+
+  --indigo-50: #EEEEF7; --indigo-100: #D6D6EC; --indigo-200: #A5A5CF; --indigo-300: #6F6FA8;
+  --indigo-400: #3F3F66; --indigo-500: #2B2B4A; --indigo-600: #262440; --indigo-700: #20203A;
+  --indigo-800: #1B1B2F; --indigo-900: #141422;
+
+  /* Raw semantic anchors */
+  --ink: #33312E; --ink-strong: #211F1D; --ink-muted: #6B655C; --ink-faint: #8A8279;
+  --paper: #FFF9F0; --paper-raised: #FFFDF8; --paper-sunken: #F6EDDD;
+  --night: #1B1B2F; --night-paper: #262440; --night-sunken: #20203A;
+
+  /* ============================================================
+     12. SEMANTIC — SURFACES                           (inherited)
+     ============================================================ */
+  --surface-page: var(--cream-100);
+  --surface-paper: var(--cream-50);
+  --surface-raised: var(--cream-50);
+  --surface-sunken: var(--cream-200);
+  --surface-tint-rose: var(--sakura-100);
+  --surface-tint-sky: var(--sora-100);
+  --surface-tint-leaf: var(--wakatake-100);
+  --surface-tint-sun: var(--yamabuki-100);
+  --surface-tint-coral: var(--shu-100);
+  --surface-ink: var(--sumi-800);
+  --surface-pastel-sakura: var(--sakura-200);
+  --surface-pastel-sora: var(--sora-200);
+  --surface-pastel-wakatake: var(--wakatake-200);
+  --surface-pastel-yamabuki: var(--yamabuki-200);
+  --surface-pastel-shu: var(--shu-200);
+  --surface-pastel-matcha: var(--matcha-200);
+  --surface-pastel-fuji: var(--fuji-200);
+
+  /* ============================================================
+     13. SEMANTIC — BORDERS                            (inherited)
+     ============================================================ */
+  --border-soft: var(--sumi-200);
+  --border-strong: var(--sumi-700);
+  --border-dashed: var(--sumi-300);
+  --border-disabled: var(--cream-400);
+
+  /* ============================================================
+     14. SEMANTIC — TEXT                              (inherited)
+     ============================================================ */
+  --text-primary: var(--sumi-800);
+  --text-strong: #211F1D;
+  --text-secondary: var(--sumi-500);
+  --text-tertiary: var(--sumi-400);
+  --text-on-ink: var(--cream-50);
+  --text-link: var(--sora-600);
+  --text-link-hover: var(--sora-700);
+  --text-danger: var(--shu-700);
+  --text-success: var(--wakatake-700);
+
+  --ink-on-sakura: #33312E;
+  --ink-on-sora: #33312E;
+  --ink-on-wakatake: #123626;
+  --ink-on-yamabuki: #5A4A00;
+  --ink-on-shu: #3D1313;
+  --ink-on-matcha: #24381A;
+  --ink-on-fuji: #382852;
+
+  /* ============================================================
+     15. SEMANTIC — ACCENTS + FOCUS                   (inherited)
+     ============================================================ */
+  --accent-primary: var(--shu-500);
+  --accent-primary-ink: #3D1313;
+  --accent-secondary: var(--sora-200);
+  --accent-tertiary: var(--fuji-200);
+  --accent-sun: var(--yamabuki-200);
+  --accent-leaf: var(--wakatake-200);
+  --focus-ring: var(--sora-600);
+  --focus-ring-halo: rgba(46, 115, 148, .30);
+  --brand-wordmark: var(--shu-500);
+
+  /* ============================================================
+     16. STATUS — EVENT                               (inherited)
+     ============================================================ */
+  --status-draft-bg: var(--cream-200);
+  --status-draft-ink: var(--sumi-800);
+  --status-draft-edge: var(--cream-500);
+  --status-published-bg: var(--wakatake-100);
+  --status-published-ink: var(--wakatake-700);
+  --status-published-edge: var(--wakatake-300);
+  --status-cancelled-bg: var(--shu-100);
+  --status-cancelled-ink: var(--shu-700);
+  --status-cancelled-edge: var(--shu-300);
+  --status-completed-bg: var(--fuji-100);
+  --status-completed-ink: var(--fuji-700);
+  --status-completed-edge: var(--fuji-300);
+
+  /* ============================================================
+     17. STATUS — RSVP (UI label ↔ backend value)      (inherited)
+     ============================================================ */
+  --rsvp-going-bg: var(--wakatake-200);
+  --rsvp-going-ink: var(--wakatake-800);
+  --rsvp-going-edge: var(--wakatake-400);
+  --rsvp-maybe-bg: var(--yamabuki-200);
+  --rsvp-maybe-ink: var(--yamabuki-700);
+  --rsvp-maybe-edge: var(--yamabuki-400);
+  --rsvp-notgoing-bg: var(--cream-300);
+  --rsvp-notgoing-ink: var(--sumi-700);
+  --rsvp-notgoing-edge: var(--cream-500);
+  --rsvp-cancelled-bg: var(--shu-200);
+  --rsvp-cancelled-ink: var(--shu-800);
+  --rsvp-cancelled-edge: var(--shu-400);
+  --rsvp-none-bg: var(--surface-paper);
+  --rsvp-none-ink: var(--text-secondary);
+  --rsvp-none-edge: var(--border-dashed);
+
+  /* ============================================================
+     18. VISIBILITY BADGE                             (inherited)
+     ============================================================ */
+  --vis-public-bg: var(--sora-100);
+  --vis-public-ink: var(--sora-700);
+  --vis-public-edge: var(--sora-300);
+  --vis-private-bg: var(--cream-200);
+  --vis-private-ink: var(--sumi-700);
+  --vis-private-edge: var(--cream-500);
+
+  /* ============================================================
+     19. TAG CHIP (defaults; per-chip computed)       (inherited)
+     ============================================================ */
+  --tag-fill: var(--surface-sunken);
+  --tag-ink: var(--text-primary);
+  --tag-edge: var(--border-strong);
+  --tag-softness: 0.82;
+  --tag-influence: 0.10;
+
+  /* ============================================================
+     20. CAPACITY                                     (inherited)
+     ============================================================ */
+  --cap-ok: var(--wakatake-300);
+  --cap-near: var(--yamabuki-300);
+  --cap-full: var(--shu-400);
+  --cap-track: var(--surface-sunken);
+
+  /* ============================================================
+     21. GLOW (light = transparent no-op)             (inherited)
+     ============================================================ */
+  --glow-coral: transparent;
+  --glow-sky: transparent;
+  --glow-sun: transparent;
+  --glow-leaf: transparent;
+
+  /* ============================================================
+     22. MASCOTS                                      (inherited)
+     ============================================================ */
+  --mascot-body: var(--cream-100);
+  --mascot-ink: var(--sumi-800);
+  --mascot-blush: var(--sakura-200);
+  --mascot-accent: var(--shu-500);
+  --mascot-sun: var(--yamabuki-200);
+  --mascot-sky: var(--sora-200);
+  --mascot-leaf: var(--wakatake-200);
+  --mascot-xs: 40px;
+  --mascot-sm: 64px;
+  --mascot-md: 96px;
+  --mascot-lg: 140px;
+  --mascot-xl: 180px;
+
+  /* ============================================================
+     23. PATTERNS                                     (inherited)
+     ============================================================ */
+  --pattern-chiyogami-hana:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23FFD1DC' stroke-width='3'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Ccircle cx='36' cy='36' r='5'/%3E%3C/g%3E%3Cg fill='%23FFB8CB'%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3Ccircle cx='36' cy='36' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  --pattern-chiyogami-asa:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23A8D8EA' stroke-width='2.5'%3E%3Cpath d='M0 40a20 20 0 0 1 40 0'/%3E%3Cpath d='M-20 20a20 20 0 0 1 40 0'/%3E%3Cpath d='M20 20a20 20 0 0 1 40 0'/%3E%3C/g%3E%3C/svg%3E");
+  --pattern-polka-sakura:
+    radial-gradient(circle at 8px 8px, var(--sakura-300) 3px, transparent 3.5px),
+    radial-gradient(circle at 24px 24px, var(--sakura-300) 3px, transparent 3.5px);
+  --pattern-polka-sora:
+    radial-gradient(circle at 8px 8px, var(--sora-400) 3px, transparent 3.5px),
+    radial-gradient(circle at 24px 24px, var(--sora-400) 3px, transparent 3.5px);
+  --pattern-tatami:
+    repeating-linear-gradient(0deg, rgba(51,49,46,.06) 0 1px, transparent 1px 16px),
+    repeating-linear-gradient(90deg, rgba(51,49,46,.06) 0 1px, transparent 1px 16px);
+  --pattern-asanoha:
+    repeating-linear-gradient(60deg, rgba(127,200,169,.35) 0 2px, transparent 2px 24px),
+    repeating-linear-gradient(-60deg, rgba(127,200,169,.35) 0 2px, transparent 2px 24px),
+    repeating-linear-gradient(0deg, rgba(127,200,169,.20) 0 2px, transparent 2px 24px);
+  --pattern-grain-opacity: 0.035;
+  --pattern-grain-blend: multiply;
+
+  /* ============================================================
+     24. COMPONENT LOCALS — BUTTON                    (inherited)
+     ============================================================ */
+  --btn-bg: var(--surface-paper);
+  --btn-ink: var(--text-primary);
+  --btn-border: var(--border-strong);
+  --btn-h-sm: 36px;
+  --btn-h-md: 44px;
+  --btn-h-lg: 52px;
+
+  /* ============================================================
+     25. SCROLLBAR + MISC                             (inherited)
+     ============================================================ */
+  --scrollbar-track: var(--surface-sunken);
+  --scrollbar-thumb: var(--border-strong);
+  --scrollbar-w: 10px;
+  --scrim: rgba(51, 49, 46, .55);
+
+  /* ============================================================
+     26. NEW — ALBUM LAYOUT TOKENS
+     ============================================================ */
+
+  /* Rail */
+  --rail-w: 272px;
+  --rail-w-md: 88px;
+  --rail-pad-x: 20px;
+  --rail-pad-x-md: 16px;
+  --rail-gap: 8px;
+  --rail-cover-h: 184px;
+  --rail-cover-h-md: 96px;
+  --rail-tab-h: 46px;
+  --rail-tab-h-md: 44px;
+  --rail-foot-h: 112px;
+  --rail-surface: var(--surface-sunken);
+  --rail-border: 2px solid var(--border-soft);
+  --rail-scrim: rgba(51, 49, 46, .45);
+
+  /* Canvas */
+  --canvas-pad-x: 16px;
+  --canvas-pad-top: 62px;
+  --canvas-pad-bottom: calc(var(--tabbar-h) + 24px);
+  --canvas-max: 100%;
+
+  /* Crease */
+  --crease-w: 24px;
+  --crease-ink: rgba(51, 49, 46, .12);
+  --crease-stitch: var(--sumi-300);
+
+  /* Mosaic */
+  --mosaic-cols: 6;
+  --mosaic-row-h: 128px;
+  --mosaic-gap: 32px;
+  --mosaic-row-gap: 24px;
+  --mosaic-spread-gap: 48px;
+  --mosaic-rot-scale: 1;
+  --tile-rot: 0deg;            /* default; each slot sets its own base tilt */
+  --tile-radius: var(--radius-lg);
+  --photo-corner: 14px;
+
+  /* Templates */
+  --template-w: 100%;          /* default; each .template--* sets its own */
+  --template-collage: 100%;
+  --template-spread: 1120px;
+  --template-notebook: 980px;
+  --template-guestbook: 1080px;
+  --template-clipboard: 900px;
+  --template-ledger: 1120px;
+  --template-cover: 100%;
+  --template-guide: 1280px;
+
+  /* Spread / notebook / log / guestbook */
+  --spread-seam-w: 24px;
+  --postcard-w: 640px;
+  --reply-w: 456px;
+  --notebook-spiral-w: 36px;
+  --stamp-size: 64px;
+  --frame-w: 72px;
+
+  /* Bars */
+  --tabbar-h: 60px;
+  --topbar-h: 62px;
+  --sticky-top: 62px;
+  --tabbar-shadow: 0 -2px 0 rgba(51, 49, 46, .06);
+
+  /* Tape */
+  --tape-page-w: 168px;
+  --tape-page-h: 22px;
+  --tape-corner-w: 108px;
+  --tape-corner-h: 20px;
+  --tape-peel-rot: 6deg;
+
+  /* Motion (layout) */
+  --dur-tile-settle: 220ms;
+  --dur-tape-peel: 180ms;
+  --dur-page-turn: 420ms;
+  --dur-drawer: 320ms;
+  --dur-stamp: 240ms;
+  --ease-page-turn: cubic-bezier(.4, 0, .2, 1);
+}
+
+/* ==========================================================================
+   NIGHT STALLS
+   ========================================================================== */
+[data-theme="dark"] {
+  /* Semantic surfaces                                   (inherited) */
+  --surface-page: var(--indigo-800);
+  --surface-paper: var(--indigo-600);
+  --surface-raised: var(--indigo-500);
+  --surface-sunken: var(--indigo-700);
+  --surface-tint-rose: #3A2A3A;
+  --surface-tint-sky: #22334A;
+  --surface-tint-leaf: #21362E;
+  --surface-tint-sun: #3A3520;
+  --surface-tint-coral: #3A2226;
+  --surface-ink: #F1ECFB;
+  --surface-pastel-sakura: var(--sakura-400);
+  --surface-pastel-sora: var(--sora-400);
+  --surface-pastel-wakatake: var(--wakatake-400);
+  --surface-pastel-yamabuki: var(--yamabuki-400);
+  --surface-pastel-shu: var(--shu-400);
+  --surface-pastel-matcha: var(--matcha-400);
+  --surface-pastel-fuji: var(--fuji-400);
+
+  /* Borders                                             (inherited) */
+  --border-soft: var(--indigo-400);
+  --border-strong: var(--fuji-200);
+  --border-dashed: #4A4A6E;
+  --border-disabled: #33334F;
+
+  /* Text                                                (inherited) */
+  --text-primary: #F3F0FA;
+  --text-strong: #FFFFFF;
+  --text-secondary: #B9B4CE;
+  --text-tertiary: #8C88A6;
+  --text-on-ink: var(--indigo-800);
+  --text-link: var(--sora-200);
+  --text-link-hover: #C7E9F5;
+  --text-danger: var(--shu-300);
+  --text-success: var(--wakatake-200);
+
+  --ink-on-sakura: #2A1620;
+  --ink-on-sora: #10242E;
+  --ink-on-wakatake: #10241A;
+  --ink-on-yamabuki: #2E2600;
+  --ink-on-shu: #2E1010;
+  --ink-on-matcha: #16240E;
+  --ink-on-fuji: #1E1430;
+
+  /* Accents + focus                                     (inherited) */
+  --accent-primary: var(--shu-300);
+  --accent-primary-ink: #3D1313;
+  --accent-secondary: var(--sora-300);
+  --accent-tertiary: var(--fuji-300);
+  --accent-sun: var(--yamabuki-300);
+  --accent-leaf: var(--wakatake-300);
+  --focus-ring: var(--yamabuki-300);
+  --focus-ring-halo: rgba(255, 214, 51, .32);
+  --brand-wordmark: var(--shu-300);
+
+  /* Status — event                                      (inherited) */
+  --status-draft-bg: #2E2C46;         --status-draft-ink: var(--indigo-100);    --status-draft-edge: var(--indigo-400);
+  --status-published-bg: #1E3A2E;     --status-published-ink: #AEE3C8;          --status-published-edge: #2E6B52;
+  --status-cancelled-bg: #3A2226;     --status-cancelled-ink: #FFB8B8;          --status-cancelled-edge: #5A2E2E;
+  --status-completed-bg: #2C2748;     --status-completed-ink: #D6C7F0;          --status-completed-edge: #6A4F98;
+
+  /* Status — RSVP                                       (inherited) */
+  --rsvp-going-bg: #2E6B52;           --rsvp-going-ink: #E4F4EC;                --rsvp-going-edge: var(--wakatake-300);
+  --rsvp-maybe-bg: #6B5A16;           --rsvp-maybe-ink: #FFF6CC;                --rsvp-maybe-edge: var(--yamabuki-300);
+  --rsvp-notgoing-bg: #3A3852;        --rsvp-notgoing-ink: var(--indigo-100);   --rsvp-notgoing-edge: var(--indigo-400);
+  --rsvp-cancelled-bg: #5A2E2E;       --rsvp-cancelled-ink: #FFD1D1;            --rsvp-cancelled-edge: var(--shu-300);
+  --rsvp-none-bg: var(--surface-paper); --rsvp-none-ink: var(--text-secondary); --rsvp-none-edge: var(--border-dashed);
+
+  /* Visibility badge                                    (inherited) */
+  --vis-public-bg: #22334A;           --vis-public-ink: var(--sora-200);        --vis-public-edge: var(--sora-400);
+  --vis-private-bg: var(--surface-sunken); --vis-private-ink: var(--text-secondary); --vis-private-edge: var(--indigo-400);
+
+  /* Tag chip                                            (inherited) */
+  --tag-fill: var(--surface-sunken);
+  --tag-ink: var(--text-primary);
+  --tag-edge: var(--indigo-400);
+  --tag-softness: 0.72;
+
+  /* Capacity                                            (inherited) */
+  --cap-ok: var(--wakatake-400);
+  --cap-near: var(--yamabuki-400);
+  --cap-full: var(--shu-400);
+  --cap-track: var(--indigo-700);
+
+  /* Glow (lantern)                                      (inherited) */
+  --glow-coral: rgba(255, 166, 166, .28);
+  --glow-sky: rgba(168, 216, 234, .22);
+  --glow-sun: rgba(255, 214, 51, .22);
+  --glow-leaf: rgba(127, 200, 169, .20);
+
+  /* Shadows                                             (inherited) */
+  --shadow-paper: 0 1px 0 rgba(0, 0, 0, .35);
+  --shadow-lift: 0 2px 0 rgba(0, 0, 0, .40);
+  --shadow-raised: 0 3px 0 rgba(0, 0, 0, .45);
+  --shadow-modal: 0 4px 0 rgba(0, 0, 0, .50), 0 0 32px rgba(255, 166, 166, .10);
+  --shadow-sticker: 0 2px 0 rgba(0, 0, 0, .50);
+  --shadow-glow-coral: 0 0 24px var(--glow-coral);
+  --shadow-glow-sky: 0 0 24px var(--glow-sky);
+  --shadow-glow-sun: 0 0 24px var(--glow-sun);
+  --shadow-glow-leaf: 0 0 24px var(--glow-leaf);
+
+  /* Mascots                                             (inherited) */
+  --mascot-body: var(--indigo-500);
+  --mascot-ink: var(--fuji-100);
+  --mascot-blush: var(--sakura-400);
+  --mascot-accent: var(--shu-300);
+  --mascot-sun: var(--yamabuki-300);
+  --mascot-sky: var(--sora-300);
+  --mascot-leaf: var(--wakatake-300);
+
+  /* Patterns (night tints)                              (inherited) */
+  --pattern-chiyogami-hana:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23FF93B0' stroke-width='3' opacity='.5'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Ccircle cx='36' cy='36' r='5'/%3E%3C/g%3E%3Cg fill='%23FF93B0' opacity='.5'%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3Ccircle cx='36' cy='36' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  --pattern-chiyogami-asa:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%235FB0CE' stroke-width='2.5' opacity='.5'%3E%3Cpath d='M0 40a20 20 0 0 1 40 0'/%3E%3Cpath d='M-20 20a20 20 0 0 1 40 0'/%3E%3Cpath d='M20 20a20 20 0 0 1 40 0'/%3E%3C/g%3E%3C/svg%3E");
+  --pattern-polka-sakura:
+    radial-gradient(circle at 8px 8px, var(--sakura-400) 3px, transparent 3.5px),
+    radial-gradient(circle at 24px 24px, var(--sakura-400) 3px, transparent 3.5px);
+  --pattern-polka-sora:
+    radial-gradient(circle at 8px 8px, var(--sora-400) 3px, transparent 3.5px),
+    radial-gradient(circle at 24px 24px, var(--sora-400) 3px, transparent 3.5px);
+  --pattern-tatami:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 16px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 1px, transparent 1px 16px);
+  --pattern-asanoha:
+    repeating-linear-gradient(60deg, rgba(95,184,146,.30) 0 2px, transparent 2px 24px),
+    repeating-linear-gradient(-60deg, rgba(95,184,146,.30) 0 2px, transparent 2px 24px),
+    repeating-linear-gradient(0deg, rgba(95,184,146,.16) 0 2px, transparent 2px 24px);
+  --pattern-grain-opacity: 0.05;
+  --pattern-grain-blend: screen;
+
+  /* Component locals                                    (inherited) */
+  --btn-bg: var(--surface-paper);
+  --btn-ink: var(--text-primary);
+  --btn-border: var(--indigo-400);
+  --scrollbar-track: var(--indigo-700);
+  --scrollbar-thumb: var(--indigo-400);
+  --scrim: rgba(0, 0, 0, .68);
+
+  /* NEW layout tokens that change by theme */
+  --rail-surface: var(--indigo-700);
+  --rail-border: 2px solid var(--indigo-400);
+  --rail-scrim: rgba(0, 0, 0, .60);
+  --crease-ink: rgba(0, 0, 0, .40);
+  --crease-stitch: var(--indigo-400);
+  --tabbar-shadow: 0 -2px 0 rgba(0, 0, 0, .40);
+}
+
+/* === TOKENS.CSS END === */
