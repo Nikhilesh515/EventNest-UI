@@ -14,13 +14,9 @@ interface MascotProps {
 
 export function Mascot({ kind, size, static: isStatic, painted, className }: MascotProps) {
   const style = size ? { width: size, height: size } : undefined
-  const maskClass = cn(isStatic && 'is-static', painted && 'daruma--painted')
-  return (
-    <span className={cn('mascot-wrap', className)} style={style} aria-hidden="true">
-      {kind === 'daruma' ? <Daruma className={maskClass} /> : null}
-      {kind === 'neko' ? <Neko className={maskClass} /> : null}
-      {kind === 'koi' ? <Koi className={maskClass} /> : null}
-      {kind === 'kokeshi' ? <Kokeshi className={maskClass} /> : null}
-    </span>
-  )
+  const maskClass = cn(isStatic && 'is-static', painted && 'daruma--painted', className)
+  if (kind === 'daruma') return <Daruma className={maskClass} style={style} />
+  if (kind === 'neko') return <Neko className={maskClass} style={style} />
+  if (kind === 'koi') return <Koi className={maskClass} style={style} />
+  return <Kokeshi className={maskClass} style={style} />
 }

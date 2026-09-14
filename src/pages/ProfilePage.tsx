@@ -48,7 +48,7 @@ export default function ProfilePage() {
       <Breadcrumbs items={[{ label: 'Events', href: '/events' }, { label: 'Profile' }]} />
       <PageDoc title="Profile" overline="Account" kanji="手帳" tapeVariant="sora" />
       {permissionsQuery.isLoading && FEATURES.permissions ? (
-        <SkeletonCard rows={3} />
+        <SkeletonCard />
       ) : (
         <MetaGrid
           rows={[

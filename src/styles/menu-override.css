@@ -26,3 +26,11 @@
 .punch-row:has(.menu-panel) {
   z-index: var(--z-dropdown);
 }
+
+/* The prototype appends `.rsvp-confirm` as a fifth child of `article.log-entry`, which is a
+   four-column grid — so on desktop the box auto-places into row 2 column 1 (the 56px date track)
+   and overflows it. Span the full row instead. Documented deviation; see
+   fidelity-fixes/05-my-rsvps.md (D8). */
+.log-entry .rsvp-confirm {
+  grid-column: 1 / -1;
+}

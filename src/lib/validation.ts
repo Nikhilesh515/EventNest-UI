@@ -6,22 +6,20 @@ export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function validateLogin(values: { email: string; password: string }): FieldErrors {
   const errors: FieldErrors = {}
-  if (!values.email.trim()) errors.email = 'Email is required.'
-  else if (!EMAIL_RE.test(values.email)) errors.email = 'Enter a valid email address.'
-  if (!values.password) errors.password = 'Password is required.'
+  if (!EMAIL_RE.test(values.email.trim())) errors.email = 'Enter a valid email address.'
+  if (!values.password) errors.password = 'Enter your password.'
   return errors
 }
 
 export function validateRegister(values: RegisterInput & { confirmPassword: string }): FieldErrors {
   const errors: FieldErrors = {}
-  if (!values.displayName.trim()) errors.displayName = 'Display name is required.'
-  else if (values.displayName.length > 100)
-    errors.displayName = 'Display name must be 100 characters or fewer.'
-  if (!values.email.trim()) errors.email = 'Email is required.'
-  else if (!EMAIL_RE.test(values.email)) errors.email = 'Enter a valid email address.'
-  if (!values.password) errors.password = 'Password is required.'
-  else if (values.password.length < 8) errors.password = 'Password must be at least 8 characters.'
-  if (values.confirmPassword !== values.password) errors.confirmPassword = 'Passwords do not match.'
+  if (!values.displayName.trim()) errors.displayName = 'Enter a display name.'
+  else if (values.displayName.trim().length > 100)
+    errors.displayName = 'That name is a bit long (100 max).'
+  if (!EMAIL_RE.test(values.email.trim())) errors.email = 'Enter a valid email address.'
+  if (!values.password) errors.password = 'Enter your password.'
+  else if (values.password.length < 8) errors.password = 'Use at least 8 characters.'
+  if (values.confirmPassword !== values.password) errors.confirmPassword = "Passwords don't match."
   return errors
 }
 

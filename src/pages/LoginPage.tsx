@@ -1,28 +1,31 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useToast } from '@/app/providers/ToastProvider'
+import { AuthCover } from '@/features/auth/components/AuthCover'
 import { useAuth } from '@/features/auth/AuthContext'
-import { LoginCard } from '@/features/auth/components/LoginCard'
-import { Mascot } from '@/components/brand/Mascot'
 import { safeReturnUrl } from '@/lib/routes'
 
 export default function LoginPage() {
   const { login } = useAuth()
+  const { push } = useToast()
   const navigate = useNavigate()
   const [params] = useSearchParams()
 
-  async function handleSubmit(email: string, password: string) {
-    await login(email, password)
+  async function handleSubmit({
+    email,
+    password,
+  }: {
+    displayName: string
+    email: string
+    password: string
+  }) {
+    const user = await login(email, password)
+    push({
+      kind: 'success',
+      title: `Welcome back, ${user.displayName.split(/\s+/)[0]}! 福`,
+      body: 'Your permissions are warm.',
+    })
     navigate(safeReturnUrl(params.get('returnUrl')), { replace: true })
   }
 
-  return (
-    <div className="cover">
-      <div className="cover__art" aria-hidden="true">
-        <Mascot kind="neko" size={140} />
-        <p className="cover__caption">A warm stall is a lucky stall.</p>
-      </div>
-      <div className="cover__panel">
-        <LoginCard onSubmit={handleSubmit} />
-      </div>
-    </div>
-  )
+  return <AuthCover kind="login" onSubmit={handleSubmit} />
 }

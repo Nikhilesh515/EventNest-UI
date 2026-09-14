@@ -147,6 +147,7 @@ export function normalizeTag(hex: string, mode: 'light' | 'dark'): TagColor {
     edge,
     inkContrast: round1(inkContrast),
     fillVsGround: round1(contrastHex(fill, ground)),
+    edgeVsGround: round1(contrastHex(edge, ground)),
     aa: inkContrast >= 4.5,
     usedFallback: parseHex(hex) === null,
   }

@@ -10,18 +10,19 @@ import { rsvpKeys } from './queryKeys'
 interface ChangeRsvpInput {
   rsvpId: string
   body: UpdateRsvpRequest
+  eventId?: string
 }
 
-/** @requires BP-02 - PUT /api/rsvps/{id} is not routed at the gateway today. */
 export function useChangeRsvp(eventId: string) {
   const queryClient = useQueryClient()
   const { user } = useAuth()
   return useMutation({
     mutationFn: ({ rsvpId, body }: ChangeRsvpInput) => updateRsvp(rsvpId, body),
-    onSuccess: () => {
-      if (eventId) {
-        void queryClient.invalidateQueries({ queryKey: rsvpKeys.byEvent(eventId) })
-        void queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) })
+    onSuccess: (_data, { eventId: overrideEventId }) => {
+      const target = overrideEventId ?? eventId
+      if (target) {
+        void queryClient.invalidateQueries({ queryKey: rsvpKeys.byEvent(target) })
+        void queryClient.invalidateQueries({ queryKey: eventKeys.detail(target) })
       }
       if (user) {
         void queryClient.invalidateQueries({ queryKey: rsvpKeys.byUser(user.id) })

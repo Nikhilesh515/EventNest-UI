@@ -7,6 +7,7 @@ export interface RouteMeta {
   title: string
   stamp: string
   liveMessage: string
+  animate?: boolean
 }
 
 const DEFAULT_META: RouteMeta = {
@@ -16,6 +17,7 @@ const DEFAULT_META: RouteMeta = {
   title: 'Not found',
   stamp: 'page · Not found',
   liveMessage: 'Not found',
+  animate: false,
 }
 
 const EXACT: Record<string, RouteMeta> = {

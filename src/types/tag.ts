@@ -31,6 +31,7 @@ export interface TagColor {
   edge: string
   inkContrast: number
   fillVsGround: number
+  edgeVsGround: number
   aa: boolean
   usedFallback: boolean
 }

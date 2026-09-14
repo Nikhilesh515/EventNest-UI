@@ -7,6 +7,13 @@ export const RSVP_STATUS_TO_KEY: Record<RsvpStatus, RsvpUiKey> = {
   Cancelled: 'cancelled',
 }
 
+export const RSVP_KEY_TO_STATUS: Record<RsvpUiKey, RsvpStatus> = {
+  going: 'Confirmed',
+  maybe: 'Maybe',
+  notgoing: 'Declined',
+  cancelled: 'Cancelled',
+}
+
 export const RSVP_KEY_TO_LABEL: Record<RsvpUiKey, RsvpUiLabel> = {
   going: 'Going',
   maybe: 'Maybe',

@@ -5,6 +5,7 @@ import { Modal } from '@/components/overlays/Modal'
 import { TextField } from '@/components/forms/TextField'
 import { ColorField } from '@/components/forms/ColorField'
 import { AppApiError } from '@/api/errors'
+import { parseHex } from '@/lib/color'
 
 interface TagFormModalProps {
   open: boolean
@@ -17,6 +18,8 @@ export function TagFormModal({ open, tag, onClose, onSubmit }: TagFormModalProps
   const [name, setName] = useState(tag?.name ?? '')
   const [color, setColor] = useState(tag?.color ?? '#6366F1')
   const [error, setError] = useState<string | null>(null)
+  const [nameError, setNameError] = useState<string | null>(null)
+  const [colorError, setColorError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
@@ -24,22 +27,29 @@ export function TagFormModal({ open, tag, onClose, onSubmit }: TagFormModalProps
       setName(tag?.name ?? '')
       setColor(tag?.color ?? '#6366F1')
       setError(null)
+      setNameError(null)
+      setColorError(null)
     }
   }, [open, tag])
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
+    if (!parseHex(color)) {
+      setColorError('Enter a valid hex colour, e.g. #6366F1.')
+      return
+    }
     setBusy(true)
     setError(null)
+    setNameError(null)
     try {
       await onSubmit({ name, color })
       onClose()
     } catch (caught) {
-      setError(
-        caught instanceof AppApiError
-          ? (caught.fieldErrors.name ?? caught.message)
-          : 'Could not save the tag.',
-      )
+      if (caught instanceof AppApiError && caught.fieldErrors.name) {
+        setNameError(caught.fieldErrors.name)
+      } else {
+        setError(caught instanceof AppApiError ? caught.message : 'Could not save the tag.')
+      }
     } finally {
       setBusy(false)
     }
@@ -74,9 +84,22 @@ export function TagFormModal({ open, tag, onClose, onSubmit }: TagFormModalProps
           value={name}
           maxLength={100}
           required
-          onChange={(event) => setName(event.target.value)}
+          error={nameError ?? undefined}
+          onChange={(event) => {
+            setName(event.target.value)
+            if (nameError) setNameError(null)
+          }}
         />
-        <ColorField id="tag-color" label="Colour" value={color} onChange={setColor} />
+        <ColorField
+          id="tag-color"
+          label="Colour"
+          value={color}
+          error={colorError ?? undefined}
+          onChange={(value) => {
+            setColor(value)
+            if (colorError) setColorError(null)
+          }}
+        />
       </form>
     </Modal>
   )

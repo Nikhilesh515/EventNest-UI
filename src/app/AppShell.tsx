@@ -50,6 +50,7 @@ export function AppShell() {
         template={meta.template}
         density={meta.density}
         width={meta.width}
+        animate={meta.animate ?? true}
         footer={!cover ? <Colophon stamp={meta.stamp} /> : null}
       >
         <Outlet />

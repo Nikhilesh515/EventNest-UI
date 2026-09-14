@@ -9,11 +9,19 @@ interface ContentCanvasProps {
   template: TemplateName
   density: Density
   width: string
+  animate?: boolean
   children: ReactNode
   footer?: ReactNode
 }
 
-export function ContentCanvas({ template, density, width, children, footer }: ContentCanvasProps) {
+export function ContentCanvas({
+  template,
+  density,
+  width,
+  animate = true,
+  children,
+  footer,
+}: ContentCanvasProps) {
   const navigationType = useNavigationType()
   const location = useLocation()
   const ref = useRef<HTMLDivElement>(null)
@@ -22,12 +30,13 @@ export function ContentCanvas({ template, density, width, children, footer }: Co
     if (navigationType === 'PUSH') window.scrollTo(0, 0)
     const node = ref.current
     if (!node) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const cls = density === 'festival' ? 'page-turn-in' : 'work-fade'
     node.classList.remove('page-turn-in', 'work-fade')
+    if (!animate) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     void node.offsetWidth
     node.classList.add(cls)
-  }, [navigationType, location.pathname, density])
+  }, [navigationType, location.pathname, density, animate])
 
   return (
     <main

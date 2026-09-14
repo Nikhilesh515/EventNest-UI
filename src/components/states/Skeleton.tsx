@@ -1,17 +1,18 @@
+import type { CSSProperties } from 'react'
+
 import { cn } from '@/lib/cn'
 
 interface SkeletonProps {
-  width?: string
-  height?: string
   variant?: 'line' | 'chunk' | 'pill'
   className?: string
+  style?: CSSProperties
 }
 
-export function Skeleton({ width, height, variant = 'line', className }: SkeletonProps) {
+export function Skeleton({ variant, className, style }: SkeletonProps) {
   return (
-    <span
-      className={cn('skeleton', `skeleton--${variant}`, className)}
-      style={{ width, height }}
+    <div
+      className={cn('skeleton', variant && `skeleton--${variant}`, className)}
+      style={style}
       aria-hidden="true"
     />
   )

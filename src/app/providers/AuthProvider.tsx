@@ -58,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setPermissions(effective)
       setStatus('authenticated')
       queryClient.setQueryData(['users', 'me'], response.user)
+      return response.user
     },
     [loadPermissions, queryClient],
   )
@@ -75,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setPermissions(effective)
       setStatus('authenticated')
       queryClient.setQueryData(['users', 'me'], response.user)
+      return response.user
     },
     [loadPermissions, queryClient],
   )

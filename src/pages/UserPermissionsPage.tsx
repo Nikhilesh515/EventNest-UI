@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useToast } from '@/app/providers/ToastProvider'
 import { useUser } from '@/features/users/useUser'
 import { usePermissions } from '@/features/permissions/usePermissions'
 import { useUserPermissions } from '@/features/permissions/useUserPermissions'
 import { useGrantPermission } from '@/features/permissions/useGrantPermission'
 import { useRevokePermission } from '@/features/permissions/useRevokePermission'
-import { useAuth } from '@/features/auth/AuthContext'
 import { FEATURES } from '@/lib/features'
 import { computeEffective } from '@/hooks/useEffectivePermissions'
 import { Breadcrumbs } from '@/components/data-display/Breadcrumbs'
@@ -19,7 +19,7 @@ import { SkeletonRows } from '@/components/states/SkeletonRows'
 
 export default function UserPermissionsPage() {
   const { id = '' } = useParams()
-  const { user: actor } = useAuth()
+  const { push } = useToast()
   const userQuery = useUser(id)
   const catalogQuery = usePermissions()
   const effectiveQuery = useUserPermissions(id)
@@ -31,7 +31,7 @@ export default function UserPermissionsPage() {
     return (
       <div className="stack-6">
         <Breadcrumbs items={[{ label: 'Admin', href: '/admin/users' }, { label: 'Permissions' }]} />
-        <PageDoc title="Permissions" overline="Admin" kanji="手帳" tapeVariant="shu" />
+        <PageDoc title="Permissions" overline="Admin · 手帳" kanji="手帳" tapeVariant="shu" />
         <ErrorState
           title="Permission management is not available yet."
           body="The gateway route /api/permissions/** has not shipped (BP-01). Grant and revoke stay disabled until it is reachable."
@@ -62,48 +62,80 @@ export default function UserPermissionsPage() {
     target.role,
     new Set((effectiveQuery.data ?? []).map((permission) => permission.name)),
   )
+  const effectiveCount = effective.filter((permission) => permission.effective).length
   const directGrants = effective.filter((permission) => permission.source === 'direct grant').length
+  const directDenies = effective.filter((permission) => permission.source === 'direct deny').length
 
   return (
     <div className="stack-6">
       <Breadcrumbs
         items={[
           { label: 'Admin', href: '/admin/users' },
-          { label: target.displayName, href: `/admin/users/${target.id}/permissions` },
+          { label: 'Users', href: '/admin/users' },
+          { label: target.displayName },
           { label: 'Permissions' },
         ]}
       />
       <PageDoc
         title="Permissions"
-        overline="Admin"
+        overline="Admin · 手帳"
         kanji="手帳"
         tapeVariant="shu"
         subtitle={`${target.displayName} · ${target.email} · Role: ${target.role}`}
       />
-      <StatRow>
-        <StatCard
-          label="Effective"
-          value={effective.filter((permission) => permission.effective).length}
-        />
-        <StatCard label="Direct grants" value={directGrants} />
-        <StatCard label="Direct denies" value={0} />
-      </StatRow>
+      <div className="stats-wrap" style={{ marginTop: 'var(--space-4)' }}>
+        <StatRow>
+          <StatCard label="Effective" value={effectiveCount} tone="capacity" />
+          <StatCard label="Direct grants" value={directGrants} tone="guests" />
+          <StatCard label="Direct denies" value={directDenies} tone="cancelled" />
+        </StatRow>
+      </div>
       <PermissionCacheNote />
       <PermissionLedger
         permissions={effective}
+        userName={target.displayName}
         busyKey={busyKey}
         onGrant={(key, expiresAt) => {
           setBusyKey(key)
           void grant
             .mutateAsync({ permissionName: key, expiresAt: expiresAt ?? null })
+            .then(() =>
+              push({
+                kind: 'success',
+                title: `Granted ${key}`,
+                body: 'It may take up to 5 minutes to apply.',
+              }),
+            )
+            .catch(() =>
+              push({
+                kind: 'error',
+                title: 'Grant failed',
+                body: "The stall didn't answer in time.",
+              }),
+            )
             .finally(() => setBusyKey(null))
         }}
         onRevoke={(key) => {
           setBusyKey(key)
-          void revoke.mutateAsync({ permissionName: key }).finally(() => setBusyKey(null))
+          void revoke
+            .mutateAsync({ permissionName: key })
+            .then(() =>
+              push({
+                kind: 'info',
+                title: `Revoked ${key}`,
+                body: 'Cache may take up to 5 minutes.',
+              }),
+            )
+            .catch(() =>
+              push({
+                kind: 'error',
+                title: 'Revoke failed',
+                body: "The stall didn't answer in time.",
+              }),
+            )
+            .finally(() => setBusyKey(null))
         }}
       />
-      <span hidden>{actor?.id}</span>
     </div>
   )
 }

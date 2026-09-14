@@ -1,9 +1,12 @@
+import type { CSSProperties } from 'react'
+
 import { cn } from '@/lib/cn'
 
-export function Kokeshi({ className }: { className?: string } = {}) {
+export function Kokeshi({ className, style }: { className?: string; style?: CSSProperties } = {}) {
   return (
     <svg
       className={cn('mascot mascot--kokeshi', className)}
+      style={style}
       viewBox="0 0 120 120"
       aria-hidden="true"
       focusable="false"

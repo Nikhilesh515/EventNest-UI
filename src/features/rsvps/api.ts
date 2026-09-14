@@ -26,7 +26,6 @@ export async function createRsvp(eventId: string, body: CreateRsvpRequest): Prom
   return data
 }
 
-/** @requires BP-02 — PUT /api/rsvps/{id} is not routed at the gateway today. */
 export async function updateRsvp(rsvpId: string, body: UpdateRsvpRequest): Promise<RsvpDto> {
   const { data } = await apiClient.put<RsvpDto>(RSVPS.byId(rsvpId), body)
   return data

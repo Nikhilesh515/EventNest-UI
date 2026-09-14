@@ -15,7 +15,7 @@ export function StatCard({ label, value, sub, tone }: StatCardProps) {
   return (
     <div className={cn('stat', tone && `stat--${tone}`)}>
       <span className="stat__label">{label}</span>
-      <span className="stat__value">{value}</span>
+      <span className="stat__value tnum">{value}</span>
       {sub ? <span className="stat__sub">{sub}</span> : null}
     </div>
   )

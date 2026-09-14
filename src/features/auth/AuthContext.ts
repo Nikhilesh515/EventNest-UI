@@ -5,8 +5,8 @@ export interface AuthContextValue {
   user: UserDto | null
   permissions: string[]
   status: 'idle' | 'loading' | 'authenticated' | 'anonymous'
-  login: (email: string, password: string) => Promise<void>
-  register: (input: RegisterInput) => Promise<void>
+  login: (email: string, password: string) => Promise<UserDto>
+  register: (input: RegisterInput) => Promise<UserDto>
   logout: () => Promise<void>
   refresh: () => Promise<void>
   bootstrap: () => Promise<void>
@@ -17,8 +17,8 @@ export const ANONYMOUS_AUTH: AuthContextValue = {
   user: null,
   permissions: [],
   status: 'anonymous',
-  login: async () => undefined,
-  register: async () => undefined,
+  login: async () => Promise.reject(new Error('AuthProvider is not mounted.')),
+  register: async () => Promise.reject(new Error('AuthProvider is not mounted.')),
   logout: async () => undefined,
   refresh: async () => undefined,
   bootstrap: async () => undefined,

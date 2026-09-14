@@ -71,7 +71,14 @@ export const router = createBrowserRouter([
       { path: 'my-events', element: <RequireAuth>{suspense(<MyEventsPage />)}</RequireAuth> },
       { path: 'my-rsvps', element: <RequireAuth>{suspense(<MyRsvpsPage />)}</RequireAuth> },
       { path: 'profile', element: <RequireAuth>{suspense(<ProfilePage />)}</RequireAuth> },
-      { path: 'admin/tags', element: <RequireAuth>{suspense(<TagAdminPage />)}</RequireAuth> },
+      {
+        path: 'admin/tags',
+        element: (
+          <RequirePermission permission={EventNestPermissions.Tags.View}>
+            {suspense(<TagAdminPage />)}
+          </RequirePermission>
+        ),
+      },
       {
         path: 'admin/users',
         element: (

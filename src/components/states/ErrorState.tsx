@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { Mascot } from '@/components/brand/Mascot'
+import { Icon } from '@/components/icons/Icon'
 
 interface ErrorStateProps {
   title?: string
@@ -33,7 +34,8 @@ export function ErrorState({
       <div className="cluster">
         {onRetry ? (
           <button type="button" className="btn btn--primary" onClick={onRetry}>
-            {retryLabel}
+            <Icon name="refresh" size={18} />
+            <span className="btn__label">{retryLabel}</span>
           </button>
         ) : null}
         {secondary ? (

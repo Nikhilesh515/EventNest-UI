@@ -6,9 +6,12 @@ import { useUpdateTag } from '@/features/tags/useUpdateTag'
 import { useDeleteTag } from '@/features/tags/useDeleteTag'
 import { useAuth } from '@/features/auth/AuthContext'
 import { EventNestPermissions } from '@/lib/permissions'
+import { Breadcrumbs } from '@/components/data-display/Breadcrumbs'
+import { Icon } from '@/components/icons/Icon'
 import { PageDoc } from '@/components/data-display/PageDoc'
-import { TagChip } from '@/components/data-display/TagChip'
+import { PunchTable } from '@/components/data-display/PunchTable'
 import { TagFormModal } from '@/features/tags/components/TagFormModal'
+import { TagTableRow } from '@/features/tags/components/TagTableRow'
 import { ConfirmDialog } from '@/components/overlays/ConfirmDialog'
 import { EmptyState } from '@/components/states/EmptyState'
 import { ErrorState } from '@/components/states/ErrorState'
@@ -27,15 +30,17 @@ export default function TagAdminPage() {
   const canCreate = hasPermission(EventNestPermissions.Tags.Create)
   const canEdit = hasPermission(EventNestPermissions.Tags.Edit)
   const canDelete = hasPermission(EventNestPermissions.Tags.Delete)
+  const rows = tags.data ?? []
 
   return (
     <div className="stack-6">
+      <Breadcrumbs items={[{ label: 'Admin', href: '/admin/users' }, { label: 'Tags' }]} />
       <PageDoc
         title="Tags"
         overline="Admin"
         kanji="手帳"
         tapeVariant="shu"
-        subtitle={`${tags.data?.length ?? 0} tags`}
+        subtitle={`${rows.length} tags`}
         actions={
           canCreate ? (
             <button
@@ -46,48 +51,42 @@ export default function TagAdminPage() {
                 setFormOpen(true)
               }}
             >
-              + Create tag
+              <Icon name="plus" size={18} />
+              Create tag
             </button>
           ) : null
         }
       />
       {tags.isLoading ? <SkeletonRows count={5} /> : null}
       {tags.isError ? <ErrorState onRetry={() => void tags.refetch()} /> : null}
-      {tags.isSuccess && (tags.data?.length ?? 0) === 0 ? (
+      {tags.isSuccess && rows.length === 0 ? (
         <EmptyState title="No tags yet." body="Create the first tag for events." />
       ) : null}
-      <div className="ledger">
-        {(tags.data ?? []).map((tag) => (
-          <div key={tag.id} className="perm-row">
-            <TagChip tag={tag} md />
-            <span className="tnum">{tag.color}</span>
-            <time dateTime={tag.createdAt}>{tag.createdAt.slice(0, 10)}</time>
-            <span className="cluster">
-              {canEdit ? (
-                <button
-                  type="button"
-                  className="btn btn--secondary btn--sm"
-                  onClick={() => {
-                    setEditing(tag)
-                    setFormOpen(true)
-                  }}
-                >
-                  Edit
-                </button>
-              ) : null}
-              {canDelete ? (
-                <button
-                  type="button"
-                  className="btn btn--danger btn--sm"
-                  onClick={() => setDeleting(tag)}
-                >
-                  Delete
-                </button>
-              ) : null}
-            </span>
-          </div>
-        ))}
-      </div>
+      {rows.length > 0 ? (
+        <PunchTable
+          caption="Tags"
+          columns={[
+            { key: 'name', header: 'Name' },
+            { key: 'colour', header: 'Colour' },
+            { key: 'created', header: 'Created' },
+            { key: 'actions', header: 'Actions' },
+          ]}
+        >
+          {rows.map((tag) => (
+            <TagTableRow
+              key={tag.id}
+              tag={tag}
+              canEdit={canEdit}
+              canDelete={canDelete}
+              onEdit={() => {
+                setEditing(tag)
+                setFormOpen(true)
+              }}
+              onDelete={() => setDeleting(tag)}
+            />
+          ))}
+        </PunchTable>
+      ) : null}
       <TagFormModal
         open={formOpen}
         tag={editing}
