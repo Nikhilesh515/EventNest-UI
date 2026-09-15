@@ -4,8 +4,10 @@ import { api } from './api';
 interface User {
   id: string;
   name: string;
+  displayName?: string;
   email: string;
   role: string;
+  roleName?: string;
 }
 
 interface AuthResponse {
@@ -33,11 +35,16 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (email: string, password: string) => {
     const res = await api.post<AuthResponse>('/api/auth/login', { email, password });
+    const user = {
+      ...res.user,
+      name: res.user.displayName || res.user.name,
+      role: res.user.roleName || res.user.role,
+    };
     localStorage.setItem('eventnest.access_token', res.accessToken);
     localStorage.setItem('eventnest.refresh_token', res.refreshToken);
-    localStorage.setItem('eventnest.user', JSON.stringify(res.user));
+    localStorage.setItem('eventnest.user', JSON.stringify(user));
     set({
-      user: res.user,
+      user,
       accessToken: res.accessToken,
       refreshToken: res.refreshToken,
       isAuthenticated: true,
@@ -48,11 +55,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     await api.post('/api/auth/register', { name, email, password });
     // Auto-login after register
     const loginRes = await api.post<AuthResponse>('/api/auth/login', { email, password });
+    const user = {
+      ...loginRes.user,
+      name: loginRes.user.displayName || loginRes.user.name,
+      role: loginRes.user.roleName || loginRes.user.role,
+    };
     localStorage.setItem('eventnest.access_token', loginRes.accessToken);
     localStorage.setItem('eventnest.refresh_token', loginRes.refreshToken);
-    localStorage.setItem('eventnest.user', JSON.stringify(loginRes.user));
+    localStorage.setItem('eventnest.user', JSON.stringify(user));
     set({
-      user: loginRes.user,
+      user,
       accessToken: loginRes.accessToken,
       refreshToken: loginRes.refreshToken,
       isAuthenticated: true,
