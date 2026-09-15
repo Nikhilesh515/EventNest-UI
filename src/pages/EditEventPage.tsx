@@ -117,6 +117,7 @@ export function EditEventPage() {
         </header>
 
         <EventForm
+          key={event.id}
           initialValues={{
             title: event.title,
             description: event.description || '',

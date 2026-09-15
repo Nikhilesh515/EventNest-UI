@@ -4,6 +4,15 @@ export const FILLER_VARIANTS: readonly FillerVariant[] = [
   'sakura', 'sora', 'yamabuki', 'matcha',
 ];
 
+const FILLER_BY_SLOT_INDEX: Record<number, FillerVariant> = {
+  2: 'sakura',
+  3: 'sora',
+  11: 'yamabuki',
+  12: 'matcha',
+};
+
+const WASHI_VARIANTS = ['sakura', 'sora', 'yamabuki', 'matcha', 'sora', 'sakura'] as const;
+
 export interface MosaicSlot {
   cls: string;
   kind: 'feature' | 'portrait' | 'wide' | 'filler';
@@ -51,7 +60,11 @@ export function composeMosaic<T>(items: T[]): MosaicComposition<T> {
 }
 
 export function fillerVariant(index: number): FillerVariant {
-  return FILLER_VARIANTS[index % FILLER_VARIANTS.length] ?? 'sakura';
+  return FILLER_BY_SLOT_INDEX[index] ?? 'sakura';
+}
+
+export function washiVariant(index: number): string {
+  return WASHI_VARIANTS[index % WASHI_VARIANTS.length] ?? 'sakura';
 }
 
 export function tilePatternClass(id: string): string {

@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
-import { MosaicGrid } from '../components/MosaicGrid';
-import { FilterDrawer, type FilterState } from '../components/FilterDrawer';
 import { PageHeader } from '../components/PageHeader';
-import '../styles/tile-layout.css';
+import { FilterDrawer, type FilterState } from '../components/FilterDrawer';
+import { MosaicGrid } from '../components/MosaicGrid';
+import { EventRow } from '../components/EventRow';
+import { SheetPager } from '../components/SheetPager';
+import { EmptyState } from '../components/EmptyState';
+import { Icon } from '../components/Icon';
 
 interface EventTag {
   id: string;
@@ -21,6 +24,7 @@ interface Event {
   startsAt: string;
   endsAt: string;
   capacity: number;
+  goingCount: number;
   organizerId: string;
   organizerName: string;
   status: string;
@@ -29,15 +33,7 @@ interface Event {
   createdAt: string;
 }
 
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
-
 interface EventsResponse {
-  code: number;
-  success: boolean;
   result: {
     items: Event[];
     total: number;
@@ -48,26 +44,19 @@ interface EventsResponse {
 }
 
 interface TagsResponse {
-  code: number;
-  success: boolean;
-  result: { items: Tag[] };
+  result: {
+    items: Array<{ id: string; name: string; color: string }>;
+  };
 }
 
-function SearchIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  );
+const VIEW_STORAGE_KEY = 'eventnest.kawaii.scrapbook.view';
+
+function sortParam(sort: string) {
+  return sort === 'popular' ? 'popularity' : sort;
 }
 
-function FilterIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-    </svg>
-  );
+function capitalize(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 export function EventsPage() {
@@ -79,19 +68,46 @@ export function EventsPage() {
     status: 'all',
     sort: 'date-asc',
   });
+  const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(9);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<'collage' | 'list'>(() => {
+    try {
+      return localStorage.getItem(VIEW_STORAGE_KEY) === 'list' ? 'list' : 'collage';
+    } catch {
+      return 'collage';
+    }
+  });
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 300);
+    return () => window.clearTimeout(handle);
+  }, [searchInput]);
+
+  const { data: allData } = useQuery({
+    queryKey: ['events', 'total'],
+    queryFn: () => api.get<EventsResponse>('/api/events?pageSize=1'),
+  });
+  const totalAll = allData?.result?.total ?? 0;
 
   const { data: eventsData, isLoading } = useQuery({
-    queryKey: ['events', filters, search],
+    queryKey: ['events', filters, search, page, size],
     queryFn: () => {
       const params = new URLSearchParams();
+      params.set('page', String(page));
+      params.set('pageSize', String(size));
       if (filters.timeframe !== 'all') params.set('timeframe', filters.timeframe);
-      if (filters.visibility !== 'all') params.set('visibility', filters.visibility);
-      if (filters.status !== 'all') params.set('status', filters.status);
-      if (filters.sort) params.set('sort', filters.sort);
-      if (search) params.set('q', search);
-      params.set('size', '9');
+      if (filters.visibility !== 'all') params.set('visibility', capitalize(filters.visibility));
+      if (filters.status !== 'all') params.set('status', capitalize(filters.status));
+      if (filters.sort) params.set('sort', sortParam(filters.sort));
+      if (search) params.set('search', search);
+      filters.tags.forEach((tagId) => params.append('tagId', tagId));
       return api.get<EventsResponse>(`/api/events?${params.toString()}`);
     },
   });
@@ -101,23 +117,45 @@ export function EventsPage() {
     queryFn: () => api.get<TagsResponse>('/api/tags'),
   });
 
-  const tags: Tag[] = tagsData?.result?.items || [];
+  const tags = tagsData?.result?.items || [];
   const events = eventsData?.result?.items || [];
-  const total = eventsData?.result?.total || events.length;
+  const total = eventsData?.result?.total ?? events.length;
+  const pages = eventsData?.result?.pages ?? 1;
   const canCreate = user?.role === 'Admin' || user?.role === 'SuperAdmin';
 
-  const activeFilters = (filters.tags.length > 0 ? 1 : 0) +
+  const activeFilters =
+    (filters.tags.length > 0 ? 1 : 0) +
     (filters.visibility !== 'all' ? 1 : 0) +
     (filters.status !== 'all' ? 1 : 0);
+
+  const setView = (mode: 'collage' | 'list') => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem(VIEW_STORAGE_KEY, mode);
+    } catch {
+      // storage unavailable — keep in-memory state
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    } catch {
+      // clipboard unavailable — no-op
+    }
+  };
 
   return (
     <div className="template--collage">
       <PageHeader
         className="collage-hero"
-        overline="祭"
+        tapeVariant="sakura"
+        fullTape
+        kanji="祭"
         title="Find your next festival."
         subtitle="Discover events near you and paste yourself in."
-        tapeWidth="full"
         actions={
           canCreate ? (
             <a className="btn btn--primary" href="/events/new">+ Create event</a>
@@ -125,12 +163,20 @@ export function EventsPage() {
         }
       />
 
-      <div style={{ marginTop: 'var(--space-5)' }}>
-        <p className="collage-hero__count">{total} events on the table</p>
-        <form className="collage-search" role="search" onSubmit={(e) => { e.preventDefault(); }}>
+      <div className="collage-hero__inner" style={{ marginTop: 'var(--space-5)' }}>
+        <p className="collage-hero__count">{totalAll} events on the table</p>
+        <form
+          className="collage-search"
+          role="search"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSearch(searchInput.trim());
+            setPage(1);
+          }}
+        >
           <div className="collage-search__row">
             <div className="search-field">
-              <span className="search-field__icon" aria-hidden="true"><SearchIcon /></span>
+              <span className="search-field__icon" aria-hidden="true"><Icon name="search" size={18} /></span>
               <label className="sr-only" htmlFor="event-search">Search events</label>
               <input
                 id="event-search"
@@ -138,8 +184,8 @@ export function EventsPage() {
                 className="input"
                 autoComplete="off"
                 placeholder="Search events by title, place, or vibe…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
             <button className="btn btn--primary" type="submit">Search</button>
@@ -157,7 +203,10 @@ export function EventsPage() {
                 role="tab"
                 className="tab"
                 aria-selected={filters.timeframe === tf}
-                onClick={() => setFilters((f) => ({ ...f, timeframe: tf }))}
+                onClick={() => {
+                  setFilters((f) => ({ ...f, timeframe: tf }));
+                  setPage(1);
+                }}
               >
                 {tf.charAt(0).toUpperCase() + tf.slice(1)}
               </button>
@@ -170,27 +219,65 @@ export function EventsPage() {
               onClick={() => setDrawerOpen(true)}
               aria-haspopup="dialog"
               aria-expanded={drawerOpen}
+              aria-controls="filter-drawer"
             >
-              <FilterIcon /> Filters ({activeFilters})
+              <Icon name="filter" size={16} /> Filters ({activeFilters})
             </button>
             <label className="sr-only" htmlFor="sort-filter">Sort</label>
             <select
               id="sort-filter"
               className="select select--inline"
               value={filters.sort}
-              onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))}
+              onChange={(e) => {
+                setFilters((f) => ({ ...f, sort: e.target.value }));
+                setPage(1);
+              }}
             >
               <option value="date-asc">Date · soonest</option>
               <option value="date-desc">Date · latest</option>
               <option value="created-desc">Newest created</option>
               <option value="popular">Most popular</option>
             </select>
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label="Copy link to these filters"
+              onClick={handleShare}
+            >
+              <Icon name={copied ? 'check' : 'ticket'} size={18} />
+            </button>
           </div>
         </div>
         <div className="sheet-tools__row">
           <span className="sheet-tools__count" aria-live="polite">
-            {isLoading ? 'Loading…' : `${total} result${total !== 1 ? 's' : ''}`}
+            {isLoading
+              ? 'Loading…'
+              : `${total} ${total === 1 ? 'event' : 'events'} · sheet ${page} of ${Math.max(1, pages)}`}
           </span>
+          <div className="sheet-tools__end">
+            <div className="view-toggle" role="group" aria-label="View mode">
+              <button
+                type="button"
+                className="seg__btn"
+                data-view-mode="collage"
+                aria-pressed={viewMode !== 'list'}
+                aria-label="Collage view"
+                onClick={() => setView('collage')}
+              >
+                <Icon name="calendar" size={18} />
+              </button>
+              <button
+                type="button"
+                className="seg__btn"
+                data-view-mode="list"
+                aria-pressed={viewMode === 'list'}
+                aria-label="List view"
+                onClick={() => setView('list')}
+              >
+                <Icon name="menu" size={18} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -210,21 +297,80 @@ export function EventsPage() {
             ))}
           </div>
         ) : events.length === 0 ? (
-          <div className="empty-state">
-            <p>No events found. Try adjusting your filters.</p>
+          <div className="collection">
+            <EmptyState
+              title="The stall is quiet."
+              body={
+                activeFilters > 0 || search
+                  ? 'No events match your filters.'
+                  : 'No events are on the table yet.'
+              }
+              cta={
+                activeFilters > 0 || search ? (
+                  <button
+                    type="button"
+                    className="btn btn--primary"
+                    onClick={() => {
+                      setFilters({
+                        timeframe: 'upcoming',
+                        tags: [],
+                        visibility: 'all',
+                        status: 'all',
+                        sort: 'date-asc',
+                      });
+                      setSearchInput('');
+                      setSearch('');
+                      setPage(1);
+                    }}
+                  >
+                    Paint the other eye · Clear filters
+                  </button>
+                ) : canCreate ? (
+                  <a className="btn btn--primary" href="/events/new">+ Create your first event</a>
+                ) : undefined
+              }
+            />
+          </div>
+        ) : viewMode === 'list' ? (
+          <div className="collection event-grid event-grid--list">
+            {events.map((event) => (
+              <EventRow key={event.id} event={event} />
+            ))}
           </div>
         ) : (
-          <MosaicGrid events={events} />
+          <MosaicGrid events={events} taped />
         )}
       </div>
 
-      <FilterDrawer
-        isOpen={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        onApply={(f) => setFilters(f)}
-        initialFilters={filters}
-        tags={tags.map((t) => ({ id: t.id, name: t.name, hex: t.color }))}
-      />
+      {!isLoading && total > 0 && (
+        <div id="events-pager">
+          <SheetPager
+            page={page}
+            pages={pages}
+            size={size}
+            total={total}
+            sizeOptions={[9, 18]}
+            onPageChange={setPage}
+            onSizeChange={(nextSize) => {
+              setSize(nextSize);
+              setPage(1);
+            }}
+          />
+        </div>
+      )}
+
+      {drawerOpen && (
+        <FilterDrawer
+          isOpen={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          onApply={(f) => {
+            setFilters(f);
+            setPage(1);
+          }}
+          initialFilters={filters}
+          tags={tags.map((t) => ({ id: t.id, name: t.name, hex: t.color }))}
+        />
+      )}
     </div>
   );
 }

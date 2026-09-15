@@ -6,7 +6,7 @@ interface CapacityMeterProps {
 export function CapacityMeter({ going, capacity }: CapacityMeterProps) {
   const pct = capacity > 0 ? Math.min(100, (going / capacity) * 100) : 0;
   const left = Math.max(0, capacity - going);
-  const variant = pct >= 100 ? 'full' : pct >= 80 ? 'near' : '';
+  const variant = pct >= 100 ? 'full' : pct >= 70 ? 'near' : '';
 
   return (
     <div>

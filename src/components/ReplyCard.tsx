@@ -6,18 +6,12 @@ interface EventData {
   status: string;
   endsAt: string;
   capacity: number;
+  goingCount: number;
   organizerId: string;
-}
-
-interface RsvpData {
-  status: string;
-  guestCount: number;
-  notes: string | null;
 }
 
 interface ReplyCardProps {
   event: EventData;
-  rsvp: RsvpData | null;
   isOwner: boolean;
   isEnded: boolean;
   selectedStatus: RsvpStatus | null;
@@ -42,7 +36,6 @@ function formatDate(iso: string): string {
 
 export function ReplyCard({
   event,
-  rsvp,
   isOwner,
   isEnded,
   selectedStatus,
@@ -55,7 +48,7 @@ export function ReplyCard({
   onSubmit,
   onCancel,
 }: ReplyCardProps) {
-  const isFull = event.capacity > 0 && (event.capacity - (rsvp?.guestCount || 0)) <= 0;
+  const isFull = event.capacity > 0 && event.goingCount >= event.capacity;
   const showRsvpForm = !isOwner && event.status === 'Published' && !isEnded;
 
   return (
@@ -76,7 +69,7 @@ export function ReplyCard({
             guests={guests}
             notes={notes}
             capacity={event.capacity}
-            going={rsvp?.guestCount || 0}
+            going={event.goingCount}
             disabled={isFull}
             loading={loading}
             onSelect={onSelect}
@@ -90,7 +83,7 @@ export function ReplyCard({
 
       <section className="reply-card__panel">
         <p className="page-doc__overline">Capacity</p>
-        <CapacityMeter going={rsvp?.guestCount || 0} capacity={event.capacity} />
+        <CapacityMeter going={event.goingCount} capacity={event.capacity} />
       </section>
     </aside>
   );

@@ -375,6 +375,15 @@
 .log-entry__meta { font-size: var(--type-body-s); color: var(--text-secondary); }
 .log-entry__notes { font-size: var(--type-body-s); color: var(--text-secondary); font-style: italic; }
 .log-entry__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; justify-content: flex-end; }
+.log-entry__change { position: relative; }
+.log-entry__change summary { cursor: pointer; list-style: none; }
+.log-entry__change summary::-webkit-details-marker { display: none; }
+.log-entry__change-menu {
+  position: absolute; inset-block-start: calc(100% + 4px); inset-inline-end: 0; z-index: var(--z-dropdown);
+  display: grid; gap: 2px; min-inline-size: 140px; padding: var(--space-2);
+  background: var(--surface-raised); border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-raised);
+}
 @media (max-width: 639px) {
   .log-entry { grid-template-columns: 44px 48px 1fr; }
   .log-entry__actions { grid-column: 1 / -1; justify-content: flex-start; }

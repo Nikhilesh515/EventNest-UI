@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { MetaGrid } from './MetaGrid';
+import { normalizeTag, currentColorMode } from '../lib/tag-style';
 
 interface EventTag {
   id: string;
@@ -42,13 +43,14 @@ function formatDate(iso: string): string {
 }
 
 export function Postcard({ event, isOwner, canManage, hasManageRsvp, isEnded }: PostcardProps) {
-  const firstTagColor = event.tags[0]?.color || 'var(--surface-pastel-sora)';
+  const firstTagColor = event.tags[0]?.color || '#A8D8EA';
+  const patchTint = normalizeTag(firstTagColor, currentColorMode()).fill;
 
   return (
     <div className="spread__postcard postcard">
       <div
         className="postcard__patch pattern pattern--chiyogami-asa"
-        style={{ '--postcard-tint': firstTagColor } as React.CSSProperties}
+        style={{ '--postcard-tint': patchTint } as React.CSSProperties}
         aria-hidden="true"
       >
         <span className="photo-corners" aria-hidden="true">

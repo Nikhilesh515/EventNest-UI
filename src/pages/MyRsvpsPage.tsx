@@ -12,6 +12,8 @@ interface RsvpData {
   eventId: string;
   userId: string;
   eventTitle: string | null;
+  eventStartsAt: string | null;
+  eventLocation: string | null;
   status: string;
   guestCount: number;
   notes: string | null;
@@ -21,6 +23,13 @@ interface RsvpData {
 interface RsvpsResponse {
   result: RsvpData[];
 }
+
+const STATUS_PARAM: Record<RsvpStatus, string> = {
+  Confirmed: 'Confirmed',
+  Maybe: 'Maybe',
+  Declined: 'Declined',
+  Cancelled: 'Cancelled',
+};
 
 export function MyRsvpsPage() {
   const { user, isAuthenticated } = useAuthStore();
@@ -34,15 +43,19 @@ export function MyRsvpsPage() {
   });
 
   const changeMutation = useMutation({
-    mutationFn: ({ eventId }: { eventId: string }) =>
-      api.post(`/api/events/${eventId}/rsvps`, { guestCount: 1 }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['rsvps', 'my'] }),
+    mutationFn: ({ rsvpId, status }: { rsvpId: string; status: RsvpStatus }) =>
+      api.put(`/api/rsvps/${rsvpId}`, { status: STATUS_PARAM[status] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rsvps', 'my'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
   });
 
   const cancelMutation = useMutation({
     mutationFn: (eventId: string) => api.delete(`/api/events/${eventId}/rsvps`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rsvps', 'my'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
       setCancelTarget(null);
     },
   });
@@ -60,9 +73,13 @@ export function MyRsvpsPage() {
 
   const rsvps = data?.result || [];
   const now = new Date();
-  const upcoming = rsvps.filter((r) => r.status !== 'Cancelled' && new Date(r.respondedAt) >= now);
-  const past = rsvps.filter((r) => r.status !== 'Cancelled' && new Date(r.respondedAt) < now);
+  const eventDate = (r: RsvpData) => new Date(r.eventStartsAt || r.respondedAt);
+  const upcoming = rsvps.filter((r) => r.status !== 'Cancelled' && eventDate(r) >= now);
+  const past = rsvps.filter((r) => r.status !== 'Cancelled' && eventDate(r) < now);
   const cancelled = rsvps.filter((r) => r.status === 'Cancelled');
+
+  const goingCount = rsvps.filter((r) => r.status === 'Confirmed').length;
+  const maybeCount = rsvps.filter((r) => r.status === 'Maybe').length;
 
   return (
     <div className="stack-6">
@@ -74,7 +91,9 @@ export function MyRsvpsPage() {
         <div className="page-doc__head">
           <p className="page-doc__overline">Attendee · 縁</p>
           <h1 className="page-doc__title">My RSVPs</h1>
-          <p className="page-doc__sub">Your responses, pinned in one place.</p>
+          <p className="page-doc__sub">
+            {rsvps.length} responses · {goingCount} going · {maybeCount} maybe
+          </p>
         </div>
       </header>
 
@@ -96,7 +115,7 @@ export function MyRsvpsPage() {
                   <StampEntry
                     key={r.id}
                     rsvp={{ ...r, status: r.status as RsvpStatus }}
-                    onChangeStatus={(eventId) => changeMutation.mutate({ eventId })}
+                    onChangeStatus={(rsvpId, status) => changeMutation.mutate({ rsvpId, status })}
                     onCancel={(eventId) => setCancelTarget(eventId)}
                   />
                 ))}
@@ -114,7 +133,7 @@ export function MyRsvpsPage() {
               <details className="rsvp-details" style={{ marginTop: 'var(--space-6)' }}>
                 <summary>Cancelled ({cancelled.length})</summary>
                 {cancelled.map((r) => (
-                  <StampEntry key={r.id} rsvp={{ ...r, status: r.status as RsvpStatus }} />
+                  <StampEntry key={r.id} rsvp={{ ...r, status: r.status as RsvpStatus }} isPast />
                 ))}
               </details>
             )}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface EventTag {
   id: string;
@@ -59,17 +59,6 @@ export function EventForm({
     endsAt: toDatetimeLocal(initialValues?.endsAt || ''),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (initialValues) {
-      setValues({
-        ...DEFAULTS,
-        ...initialValues,
-        startsAt: toDatetimeLocal(initialValues.startsAt || ''),
-        endsAt: toDatetimeLocal(initialValues.endsAt || ''),
-      });
-    }
-  }, [initialValues?.title]);
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};

@@ -1,4 +1,4 @@
-import { composeMosaic, fillerVariant } from '../lib/mosaic';
+import { composeMosaic } from '../lib/mosaic';
 import { PolaroidTile } from './PolaroidTile';
 import { FillerTile } from './FillerTile';
 
@@ -16,6 +16,7 @@ interface Event {
   startsAt: string;
   endsAt: string;
   capacity: number;
+  goingCount: number;
   organizerId: string;
   organizerName: string;
   status: string;
@@ -26,9 +27,10 @@ interface Event {
 
 interface MosaicGridProps {
   events: Event[];
+  taped?: boolean;
 }
 
-export function MosaicGrid({ events }: MosaicGridProps) {
+export function MosaicGrid({ events, taped = false }: MosaicGridProps) {
   const { assignments, lastBand } = composeMosaic(events);
   if (lastBand === 0) return null;
 
@@ -41,9 +43,16 @@ export function MosaicGrid({ events }: MosaicGridProps) {
             return <FillerTile key={slot.cls} slot={slot} />;
           }
           if (!item) {
-            return <FillerTile key={slot.cls} slot={slot} variant={fillerVariant(slot.index)} />;
+            return (
+              <div
+                key={slot.cls}
+                className={`tile tile--empty ${slot.cls}`}
+                style={{ '--tile-rot': `${slot.rot}deg` } as React.CSSProperties}
+                aria-hidden="true"
+              />
+            );
           }
-          return <PolaroidTile key={item.id} event={item} slot={slot} />;
+          return <PolaroidTile key={item.id} event={item} slot={slot} taped={taped} />;
         })}
     </div>
   );

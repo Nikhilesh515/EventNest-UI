@@ -19,6 +19,7 @@ interface PermData {
   displayName: string;
   group: string;
   isGranted: boolean;
+  source?: 'role-default' | 'direct-grant' | 'none';
 }
 
 interface UsersResponse {
@@ -71,6 +72,7 @@ export function AdminPermissionsPage() {
   const perms = permsData?.result || [];
   const selectedUser = users.find((u) => u.id === selectedUserId);
   const effectiveCount = perms.filter((p) => p.isGranted).length;
+  const directGrantCount = perms.filter((p) => p.source === 'direct-grant').length;
   const deniedCount = perms.filter((p) => !p.isGranted).length;
 
   const grouped = PERM_GROUPS.map((group) => ({
@@ -112,6 +114,10 @@ export function AdminPermissionsPage() {
           <div className="stat stat--capacity">
             <span className="stat__label">Effective</span>
             <span className="stat__value tnum">{effectiveCount}</span>
+          </div>
+          <div className="stat stat--going">
+            <span className="stat__label">Direct grants</span>
+            <span className="stat__value tnum">{directGrantCount}</span>
           </div>
           <div className="stat stat--guests">
             <span className="stat__label">Denied</span>

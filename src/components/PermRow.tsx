@@ -3,6 +3,7 @@ interface PermData {
   displayName: string;
   group: string;
   isGranted: boolean;
+  source?: 'role-default' | 'direct-grant' | 'none';
 }
 
 interface PermRowProps {
@@ -12,7 +13,14 @@ interface PermRowProps {
   loading?: boolean;
 }
 
+const SOURCE_LABEL: Record<string, string> = {
+  'role-default': 'role default',
+  'direct-grant': 'direct grant',
+  none: '—',
+};
+
 export function PermRow({ permission, onGrant, onRevoke, loading }: PermRowProps) {
+  const source = permission.source ? SOURCE_LABEL[permission.source] : undefined;
   return (
     <div className="perm-row">
       <div className="perm-row__main">
@@ -21,6 +29,7 @@ export function PermRow({ permission, onGrant, onRevoke, loading }: PermRowProps
           <span className={`perm-state ${permission.isGranted ? 'perm-state--on' : 'perm-state--off'}`}>
             {permission.isGranted ? 'Effective' : 'Denied'}
           </span>
+          {source && <span className="perm-row__source">{source}</span>}
         </div>
       </div>
       <div className="perm-action">

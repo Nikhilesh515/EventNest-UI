@@ -7,6 +7,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { Postcard } from '../components/Postcard';
 import { ReplyCard } from '../components/ReplyCard';
 import { PostcardSpread } from '../components/PostcardSpread';
+import { tagStyleVars, currentColorMode } from '../lib/tag-style';
 import type { RsvpStatus } from '../components/RsvpStickerSheet';
 
 interface EventTag {
@@ -23,6 +24,7 @@ interface EventData {
   startsAt: string;
   endsAt: string;
   capacity: number;
+  goingCount: number;
   organizerId: string;
   organizerName: string;
   status: string;
@@ -57,11 +59,17 @@ function rsvpKeyFromStatus(statusKey: string): RsvpStatus | null {
   return map[statusKey] || null;
 }
 
+const STATUS_FOR_KEY: Record<string, string> = {
+  going: 'Confirmed',
+  maybe: 'Maybe',
+  notgoing: 'Declined',
+};
+
 export function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
 
   const [selectedStatus, setSelectedStatus] = useState<RsvpStatus | null>(null);
   const [guests, setGuests] = useState(1);
@@ -73,14 +81,14 @@ export function EventDetailPage() {
     enabled: !!id,
   });
 
-  const { data: rsvpsData, isLoading: rsvpsLoading } = useQuery({
-    queryKey: ['rsvps', id],
-    queryFn: () => api.get<RsvpsResponse>(`/api/events/${id}/rsvps`),
-    enabled: !!id && isAuthenticated,
+  const { data: myRsvpsData } = useQuery({
+    queryKey: ['rsvps', 'user', user?.id],
+    queryFn: () => api.get<RsvpsResponse>(`/api/users/${user?.id}/rsvps`),
+    enabled: !!user?.id,
   });
 
   const event = eventData?.result;
-  const myRsvp = rsvpsData?.result?.[0] || null;
+  const myRsvp = myRsvpsData?.result?.find((r) => r.eventId === id) || null;
 
   // Initialize form from existing RSVP
   const initialized = useCallback(() => {
@@ -98,19 +106,30 @@ export function EventDetailPage() {
   }
 
   const submitMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!selectedStatus) throw new Error('No status selected');
       if (selectedStatus === 'cancelled') {
-        return api.delete(`/api/events/${id}/rsvps`);
+        await api.delete(`/api/events/${id}/rsvps`);
+        return;
       }
-      return api.post(`/api/events/${id}/rsvps`, {
+      const status = STATUS_FOR_KEY[selectedStatus] ?? 'Confirmed';
+      const payload = { status, guestCount: guests, notes: notes || null };
+      if (myRsvp) {
+        await api.put(`/api/rsvps/${myRsvp.id}`, payload);
+        return;
+      }
+      const created = await api.post<{ result: RsvpData }>(`/api/events/${id}/rsvps`, {
         guestCount: guests,
         notes: notes || null,
       });
+      if (status !== 'Confirmed' && created?.result?.id) {
+        await api.put(`/api/rsvps/${created.result.id}`, payload);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['event', id] });
-      queryClient.invalidateQueries({ queryKey: ['rsvps', id] });
+      queryClient.invalidateQueries({ queryKey: ['rsvps', 'user', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
     },
   });
 
@@ -121,11 +140,12 @@ export function EventDetailPage() {
       setGuests(1);
       setNotes('');
       queryClient.invalidateQueries({ queryKey: ['event', id] });
-      queryClient.invalidateQueries({ queryKey: ['rsvps', id] });
+      queryClient.invalidateQueries({ queryKey: ['rsvps', 'user', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
     },
   });
 
-  if (eventLoading || rsvpsLoading) {
+  if (eventLoading) {
     return (
       <div className="stack-6">
         <Breadcrumbs items={[{ label: 'Events', href: '/events' }, { label: 'Loading…' }]} />
@@ -187,8 +207,12 @@ export function EventDetailPage() {
           <h1 className="page-doc__title wrap-anywhere">{event.title}</h1>
           {event.tags.length > 0 && (
             <div className="cluster" style={{ marginTop: 'var(--space-3)' }}>
-              {event.tags.map((tag) => (
-                <span key={tag.id} className="tag-chip tag-chip--md" style={{ '--tag-color': tag.color } as React.CSSProperties}>
+              {event.tags.map((tag, i) => (
+                <span
+                  key={tag.id}
+                  className="tag-chip tag-chip--md"
+                  style={tagStyleVars(tag.color, currentColorMode(), i % 2 === 0 ? -1 : 1)}
+                >
                   <span className="tag-chip__dot" />
                   <span className="tag-chip__label">{tag.name}</span>
                 </span>
@@ -211,7 +235,6 @@ export function EventDetailPage() {
         reply={
           <ReplyCard
             event={event}
-            rsvp={myRsvp}
             isOwner={isOwner}
             isEnded={isEnded}
             selectedStatus={selectedStatus}

@@ -53,12 +53,16 @@ describe('composeMosaic', () => {
 });
 
 describe('fillerVariant', () => {
-  it('cycles through variants', () => {
+  it('maps filler slots to their design variants', () => {
+    expect(fillerVariant(2)).toBe('sakura');
+    expect(fillerVariant(3)).toBe('sora');
+    expect(fillerVariant(11)).toBe('yamabuki');
+    expect(fillerVariant(12)).toBe('matcha');
+  });
+
+  it('falls back to sakura for unknown indexes', () => {
     expect(fillerVariant(0)).toBe('sakura');
-    expect(fillerVariant(1)).toBe('sora');
-    expect(fillerVariant(2)).toBe('yamabuki');
-    expect(fillerVariant(3)).toBe('matcha');
-    expect(fillerVariant(4)).toBe('sakura');
+    expect(fillerVariant(99)).toBe('sakura');
   });
 });
 

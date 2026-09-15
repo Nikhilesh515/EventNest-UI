@@ -16,6 +16,10 @@ interface AuthResponse {
   user: User;
 }
 
+interface AuthEnvelope {
+  result: AuthResponse;
+}
+
 interface AuthState {
   user: User | null;
   accessToken: string | null;
@@ -34,39 +38,40 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
 
   login: async (email: string, password: string) => {
-    const res = await api.post<AuthResponse>('/api/auth/login', { email, password });
-    const user = {
-      ...res.user,
-      name: res.user.displayName || res.user.name,
-      role: res.user.roleName || res.user.role,
+    const res = await api.post<AuthEnvelope>('/api/auth/login', { email, password });
+    const { user } = res.result;
+    const normalized = {
+      ...user,
+      name: user.displayName || user.name,
+      role: user.roleName || user.role,
     };
-    localStorage.setItem('eventnest.access_token', res.accessToken);
-    localStorage.setItem('eventnest.refresh_token', res.refreshToken);
-    localStorage.setItem('eventnest.user', JSON.stringify(user));
+    localStorage.setItem('eventnest.access_token', res.result.accessToken);
+    localStorage.setItem('eventnest.refresh_token', res.result.refreshToken);
+    localStorage.setItem('eventnest.user', JSON.stringify(normalized));
     set({
-      user,
-      accessToken: res.accessToken,
-      refreshToken: res.refreshToken,
+      user: normalized,
+      accessToken: res.result.accessToken,
+      refreshToken: res.result.refreshToken,
       isAuthenticated: true,
     });
   },
 
   register: async (name: string, email: string, password: string) => {
-    await api.post('/api/auth/register', { name, email, password });
-    // Auto-login after register
-    const loginRes = await api.post<AuthResponse>('/api/auth/login', { email, password });
-    const user = {
-      ...loginRes.user,
-      name: loginRes.user.displayName || loginRes.user.name,
-      role: loginRes.user.roleName || loginRes.user.role,
+    await api.post('/api/auth/register', { displayName: name, email, password });
+    const res = await api.post<AuthEnvelope>('/api/auth/login', { email, password });
+    const { user } = res.result;
+    const normalized = {
+      ...user,
+      name: user.displayName || user.name,
+      role: user.roleName || user.role,
     };
-    localStorage.setItem('eventnest.access_token', loginRes.accessToken);
-    localStorage.setItem('eventnest.refresh_token', loginRes.refreshToken);
-    localStorage.setItem('eventnest.user', JSON.stringify(user));
+    localStorage.setItem('eventnest.access_token', res.result.accessToken);
+    localStorage.setItem('eventnest.refresh_token', res.result.refreshToken);
+    localStorage.setItem('eventnest.user', JSON.stringify(normalized));
     set({
-      user,
-      accessToken: loginRes.accessToken,
-      refreshToken: loginRes.refreshToken,
+      user: normalized,
+      accessToken: res.result.accessToken,
+      refreshToken: res.result.refreshToken,
       isAuthenticated: true,
     });
   },

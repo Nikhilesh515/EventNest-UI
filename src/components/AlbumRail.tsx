@@ -1,100 +1,14 @@
 import { Link, useLocation } from 'react-router';
 import { useAuthStore } from '../lib/auth-store';
 import { ThemeToggle } from './ThemeToggle';
+import { Icon, type IconName } from './Icon';
 
 interface IndexTab {
   page: string;
-  icon: React.ReactNode;
+  icon: IconName;
   label: string;
   href: string;
 }
-
-function CalendarIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-  );
-}
-
-function UsersIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  );
-}
-
-function TicketIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 9a3 3 0 0 1 0 6v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a3 3 0 0 1 0-6V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
-      <path d="M13 5v2" />
-      <path d="M13 17v2" />
-      <path d="M13 11v2" />
-    </svg>
-  );
-}
-
-function PlusIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="5" x2="12" y2="19" />
-      <line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
-  );
-}
-
-function StarIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  );
-}
-
-function TagIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-      <line x1="7" y1="7" x2="7.01" y2="7" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
-}
-
-const ICON_MAP: Record<string, React.ReactNode> = {
-  calendar: <CalendarIcon />,
-  users: <UsersIcon />,
-  ticket: <TicketIcon />,
-  plus: <PlusIcon />,
-  star: <StarIcon />,
-  tag: <TagIcon />,
-  'moon-lantern': <MoonIcon />,
-  user: <UserIcon />,
-};
 
 function getActivePage(pathname: string): string {
   if (pathname === '/events/new' || /^\/events\/[^/]+\/edit$/.test(pathname)) return '04';
@@ -128,15 +42,15 @@ export function AlbumRail() {
   if (isCover) return null;
 
   const tabs: IndexTab[] = [
-    { page: '01', icon: ICON_MAP.calendar, label: 'Events', href: '/events' },
-    { page: '02', icon: ICON_MAP.users, label: 'My events', href: '/my-events' },
-    { page: '03', icon: ICON_MAP.ticket, label: 'My RSVPs', href: '/my-rsvps' },
-    { page: '04', icon: ICON_MAP.plus, label: 'Create event', href: '/events/new' },
-    { page: '06', icon: ICON_MAP.star, label: 'Permissions', href: '/admin/permissions' },
-    { page: '07', icon: ICON_MAP.tag, label: 'Tags', href: '/admin/tags' },
-    { page: '08', icon: ICON_MAP['moon-lantern'], label: 'Styleguide', href: '/styleguide' },
-    { page: '09', icon: ICON_MAP.user, label: 'Log in', href: '/login' },
-    { page: '10', icon: ICON_MAP.user, label: 'Register', href: '/register' },
+    { page: '01', icon: 'calendar', label: 'Events', href: '/events' },
+    { page: '02', icon: 'users', label: 'My events', href: '/my-events' },
+    { page: '03', icon: 'ticket', label: 'My RSVPs', href: '/my-rsvps' },
+    { page: '04', icon: 'plus', label: 'Create event', href: '/events/new' },
+    { page: '06', icon: 'star', label: 'Permissions', href: '/admin/permissions' },
+    { page: '07', icon: 'tag', label: 'Tags', href: '/admin/tags' },
+    { page: '08', icon: 'moon-lantern', label: 'Styleguide', href: '/styleguide' },
+    { page: '09', icon: 'user', label: 'Log in', href: '/login' },
+    { page: '10', icon: 'user', label: 'Register', href: '/register' },
   ];
 
   const visibleTabs = tabs.filter((tab) => {
@@ -155,8 +69,8 @@ export function AlbumRail() {
         <Link className="album-rail__brand" to="/events" aria-label="EventNest home">
           <span className="wordmark">EventNest</span>
           <span className="hanko hanko--sm" aria-hidden="true">祭</span>
+          <span className="album-rail__edition" aria-hidden="true">Vol. 01 · Scrapbook</span>
         </Link>
-        <p className="album-rail__edition" aria-hidden="true">Vol. 01 · Scrapbook</p>
       </div>
 
       <nav className="album-index" aria-label="Album index">
@@ -173,7 +87,7 @@ export function AlbumRail() {
                 aria-label={`Page ${tab.page}, ${tab.label}`}
               >
                 <span className="index-tab__num tnum" aria-hidden="true">{tab.page}</span>
-                {tab.icon}
+                <Icon name={tab.icon} size={20} />
                 <span className="index-tab__label">{tab.label}</span>
               </Link>
             </li>

@@ -6,6 +6,8 @@ interface RsvpData {
   id: string;
   eventId: string;
   eventTitle: string | null;
+  eventStartsAt: string | null;
+  eventLocation: string | null;
   status: RsvpStatus;
   guestCount: number;
   notes: string | null;
@@ -15,7 +17,7 @@ interface RsvpData {
 interface StampEntryProps {
   rsvp: RsvpData;
   isPast?: boolean;
-  onChangeStatus?: (eventId: string, newStatus: string) => void;
+  onChangeStatus?: (rsvpId: string, newStatus: RsvpStatus) => void;
   onCancel?: (eventId: string) => void;
 }
 
@@ -31,18 +33,26 @@ function formatShortDate(iso: string): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+function formatTime(iso: string): string {
+  const d = new Date(iso);
+  const h = d.getHours();
+  const m = d.getMinutes();
+  const ap = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2, '0')} ${ap}`;
 }
 
 export function StampEntry({ rsvp, isPast = false, onChangeStatus, onCancel }: StampEntryProps) {
   const stamp = STAMP_MAP[rsvp.status];
-  const otherStatuses = Object.keys(STAMP_MAP).filter((s) => s !== rsvp.status && s !== 'Cancelled') as RsvpStatus[];
+  const otherStatuses = (['Confirmed', 'Maybe', 'Declined'] as RsvpStatus[]).filter(
+    (s) => s !== rsvp.status,
+  );
+  const eventDate = rsvp.eventStartsAt || rsvp.respondedAt;
 
   return (
     <article className={`log-entry${isPast ? ' is-past' : ''}${rsvp.status === 'Cancelled' ? ' is-cancelled' : ''}`}>
       <div className="log-entry__date">
-        <time dateTime={rsvp.respondedAt}>{formatShortDate(rsvp.respondedAt)}</time>
+        <time dateTime={eventDate}>{formatShortDate(eventDate)}</time>
       </div>
       <div className={`log-stamp ${stamp.cssClass}`} data-stamp>
         <span className="log-stamp__glyph" aria-hidden="true">{stamp.glyph}</span>
@@ -53,23 +63,30 @@ export function StampEntry({ rsvp, isPast = false, onChangeStatus, onCancel }: S
           <Link to={`/events/${rsvp.eventId}`}>{rsvp.eventTitle || 'Event'}</Link>
         </h3>
         <p className="log-entry__meta">
-          {rsvp.guestCount} guest{rsvp.guestCount === 1 ? '' : 's'} · Responded {formatDate(rsvp.respondedAt)}
+          {rsvp.eventLocation ? `${rsvp.eventLocation} · ` : ''}
+          {rsvp.eventStartsAt ? `${formatTime(rsvp.eventStartsAt)} · ` : ''}
+          {rsvp.guestCount} guest{rsvp.guestCount === 1 ? '' : 's'} · Responded {formatShortDate(rsvp.respondedAt)}
         </p>
         {rsvp.notes && <p className="log-entry__notes">&ldquo;{rsvp.notes}&rdquo;</p>}
       </div>
       <div className="log-entry__actions">
         {rsvp.status !== 'Cancelled' && onChangeStatus && (
           <>
-            {otherStatuses.map((s) => (
-              <button
-                key={s}
-                type="button"
-                className="btn btn--secondary btn--sm"
-                onClick={() => onChangeStatus(rsvp.eventId, s)}
-              >
-                Change to {STAMP_MAP[s].label}
-              </button>
-            ))}
+            <details className="log-entry__change">
+              <summary className="btn btn--secondary btn--sm">Change ▾</summary>
+              <div className="log-entry__change-menu">
+                {otherStatuses.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    className="menu-item"
+                    onClick={() => onChangeStatus(rsvp.id, s)}
+                  >
+                    {STAMP_MAP[s].label}
+                  </button>
+                ))}
+              </div>
+            </details>
             {onCancel && (
               <button
                 type="button"
@@ -80,11 +97,6 @@ export function StampEntry({ rsvp, isPast = false, onChangeStatus, onCancel }: S
               </button>
             )}
           </>
-        )}
-        {rsvp.status === 'Cancelled' && (
-          <Link className="btn btn--secondary btn--sm" to={`/events/${rsvp.eventId}`}>
-            RSVP again
-          </Link>
         )}
         <Link className="btn btn--ghost btn--sm" to={`/events/${rsvp.eventId}`}>
           View event →

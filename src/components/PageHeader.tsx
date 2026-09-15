@@ -3,26 +3,45 @@ interface PageHeaderProps {
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
-  tapeWidth?: 'full' | 'default';
+  tapeVariant?: string;
+  cornerTape?: string | null;
+  fullTape?: boolean;
+  kanji?: string;
   className?: string;
 }
 
-export function PageHeader({ overline, title, subtitle, actions, tapeWidth = 'default', className }: PageHeaderProps) {
+export function PageHeader({
+  overline,
+  title,
+  subtitle,
+  actions,
+  tapeVariant = 'sakura',
+  cornerTape = 'sora',
+  fullTape = false,
+  kanji,
+  className,
+}: PageHeaderProps) {
   return (
-    <div className={`page-doc${className ? ` ${className}` : ''}`}>
-      <div
-        className={`page-doc__tape${tapeWidth === 'full' ? ' page-doc__tape--full' : ''}`}
+    <header className={`page-doc${className ? ` ${className}` : ''}`}>
+      <span
+        className={`washi page-doc__tape washi--${tapeVariant}`}
         aria-hidden="true"
+        style={fullTape ? ({ '--tape-page-w': '100%' } as React.CSSProperties) : undefined}
       />
-      <div className="page-doc__corner-tape" aria-hidden="true" />
-      <div className="page-doc__content">
+      {cornerTape && (
+        <span className={`washi page-doc__corner-tape washi--${cornerTape}`} aria-hidden="true" />
+      )}
+      {kanji && (
+        <span className="page-doc__kanji kanji-watermark" aria-hidden="true" lang="ja">
+          {kanji}
+        </span>
+      )}
+      <div className="page-doc__head">
         {overline && <p className="page-doc__overline">{overline}</p>}
-        <div className="page-doc__title-row">
-          <h1 className="page-doc__title">{title}</h1>
-          {actions && <div className="page-doc__actions">{actions}</div>}
-        </div>
-        {subtitle && <p className="page-doc__subtitle">{subtitle}</p>}
+        <h1 className="page-doc__title">{title}</h1>
+        {subtitle && <p className="page-doc__sub">{subtitle}</p>}
       </div>
-    </div>
+      {actions && <div className="page-doc__actions">{actions}</div>}
+    </header>
   );
 }

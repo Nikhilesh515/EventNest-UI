@@ -1,38 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuthStore } from '../lib/auth-store';
+import { NekoMascot } from '../components/NekoMascot';
 
 function EyeIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function NekoMascot() {
-  return (
-    <svg viewBox="0 0 120 120" width="120" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="60" cy="105" rx="28" ry="6" fill="#e8e0d4" opacity=".5"/>
-      <path d="M36 72c0-16 10-28 24-28s24 12 24 28v20c0 8-4 14-10 16l-4 2c-4 2-10 2-14 0l-4-2c-6-2-10-8-10-16V72z" fill="#fff9f0"/>
-      <path d="M36 72c0-16 10-28 24-28s24 12 24 28" stroke="#33312e" stroke-width="2" fill="none"/>
-      <path d="M38 52l8-20c2-6 6-8 10-8h8c4 0 8 2 10 8l8 20" fill="#fff9f0" stroke="#33312e" stroke-width="2"/>
-      <circle cx="50" cy="68" r="3" fill="#33312e"/>
-      <circle cx="70" cy="68" r="3" fill="#33312e"/>
-      <path d="M55 76c2 2 8 2 10 0" stroke="#33312e" stroke-width="2" fill="none" strokeLinecap="round"/>
-      <ellipse cx="60" cy="73" rx="2" ry="1.5" fill="#ffb4a2"/>
-      <path d="M30 64c-4-2-6-6-4-10" stroke="#33312e" stroke-width="2" fill="none" strokeLinecap="round"/>
-      <path d="M90 64c4-2 6-6 4-10" stroke="#33312e" stroke-width="2" fill="none" strokeLinecap="round"/>
-      <path d="M32 68l-8 2" stroke="#33312e" stroke-width="1.5" fill="none" strokeLinecap="round"/>
-      <path d="M32 72l-10 1" stroke="#33312e" stroke-width="1.5" fill="none" strokeLinecap="round"/>
-      <path d="M88 68l8 2" stroke="#33312e" stroke-width="1.5" fill="none" strokeLinecap="round"/>
-      <path d="M88 72l10 1" stroke="#33312e" stroke-width="1.5" fill="none" strokeLinecap="round"/>
-      <rect x="42" y="86" width="36" height="14" rx="7" fill="#ff6b6b"/>
-      <circle cx="60" cy="93" r="4" fill="#ffd93d" stroke="#33312e" strokeWidth="1"/>
-      <text x="60" y="96" textAnchor="middle" fill="#33312e" fontSize="6" fontWeight="bold">招</text>
-      <path d="M44 60c-2-4-1-8 2-10" stroke="#33312e" stroke-width="1.5" fill="none" strokeLinecap="round"/>
-      <path d="M76 60c2-4 1-8-2-10" stroke="#33312e" stroke-width="1.5" fill="none" strokeLinecap="round"/>
     </svg>
   );
 }

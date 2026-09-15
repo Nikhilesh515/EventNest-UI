@@ -38,7 +38,7 @@ body {
 h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd { margin: 0; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 img, svg { max-width: 100%; display: block; }
-a { color: var(--text-link); text-decoration-thickness: 2px; text-underline-offset: 2px; }
+a { color: var(--text-link); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; }
 a:hover { color: var(--text-link-hover); }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { background: none; border: 0; }
@@ -1241,6 +1241,7 @@ html { scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
 .perm-row__main { display: grid; gap: 2px; min-width: 0; }
 .perm-name { font-family: var(--font-round); font-weight: 700; font-size: var(--type-body-s); }
 .perm-meta { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.perm-row__source { font-size: var(--type-caption); color: var(--text-tertiary); }
 .perm-state { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: var(--type-body-s); white-space: nowrap; }
 .perm-state--on  { color: var(--wakatake-700); }
 .perm-state--off { color: var(--shu-700); }

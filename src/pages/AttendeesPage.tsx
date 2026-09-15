@@ -10,6 +10,7 @@ interface EventData {
   title: string;
   capacity: number;
   organizerId: string;
+  organizerName: string;
 }
 
 interface RsvpData {
@@ -68,7 +69,16 @@ export function AttendeesPage() {
     cancelled: rsvps.filter((r) => r.status === 'Cancelled').length,
   };
 
-  const goingCount = rsvps.filter((r) => r.status === 'Confirmed').reduce((sum, r) => sum + r.guestCount, 0);
+  const guestsBy = (status: string) =>
+    rsvps.filter((r) => r.status === status).reduce((sum, r) => sum + r.guestCount, 0);
+
+  const goingCount = guestsBy('Confirmed');
+  const initials = (event?.organizerName || '?')
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <div className="stack-6">
@@ -81,7 +91,7 @@ export function AttendeesPage() {
       <div className="guestbook">
         <div className="guestbook__head">
           <span className="guestbook__watermark kanji-watermark" aria-hidden="true" lang="ja">縁</span>
-          <span className="guestbook__frame" aria-hidden="true">祭</span>
+          <span className="guestbook__frame" aria-hidden="true">{initials}</span>
           <div className="guestbook__titles">
             <p className="page-doc__overline">Attendees · 縁</p>
             <h1 className="page-doc__title">Attendees</h1>
@@ -100,22 +110,22 @@ export function AttendeesPage() {
           <div className="stat-row">
             <div className="stat stat--going">
               <span className="stat__label">Going</span>
-              <span className="stat__value tnum">{counts.going}</span>
+              <span className="stat__value tnum">{guestsBy('Confirmed')}</span>
               <span className="stat__sub">people</span>
             </div>
             <div className="stat stat--maybe">
               <span className="stat__label">Maybe</span>
-              <span className="stat__value tnum">{counts.maybe}</span>
+              <span className="stat__value tnum">{guestsBy('Maybe')}</span>
               <span className="stat__sub">people</span>
             </div>
             <div className="stat stat--notgoing">
               <span className="stat__label">Not going</span>
-              <span className="stat__value tnum">{counts.notgoing}</span>
+              <span className="stat__value tnum">{guestsBy('Declined')}</span>
               <span className="stat__sub">people</span>
             </div>
             <div className="stat stat--cancelled">
               <span className="stat__label">Cancelled</span>
-              <span className="stat__value tnum">{counts.cancelled}</span>
+              <span className="stat__value tnum">{guestsBy('Cancelled')}</span>
               <span className="stat__sub">people</span>
             </div>
             <div className="stat stat--guests">

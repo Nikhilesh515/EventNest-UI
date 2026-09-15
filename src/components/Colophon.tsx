@@ -1,4 +1,5 @@
-import { useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router';
+import { useAuthStore } from '../lib/auth-store';
 
 const PAGE_NAMES: Record<string, string> = {
   '/events': 'Events',
@@ -23,6 +24,9 @@ function getPageNumber(pathname: string): string {
 }
 
 function getPageName(pathname: string): string {
+  if (/\/events\/[^/]+\/attendees/.test(pathname)) return 'Attendees';
+  if (/\/events\/[^/]+\/edit/.test(pathname)) return 'Edit event';
+  if (/^\/events\/[^/]+$/.test(pathname)) return 'Event';
   for (const [path, name] of Object.entries(PAGE_NAMES)) {
     if (pathname === path || pathname.startsWith(path + '/')) return name;
   }
@@ -31,25 +35,30 @@ function getPageName(pathname: string): string {
 
 export function Colophon() {
   const location = useLocation();
+  const { isAuthenticated, user } = useAuthStore();
   const isCover = location.pathname === '/login' || location.pathname === '/register';
 
   if (isCover) return null;
 
   const pageNum = getPageNumber(location.pathname);
   const pageName = getPageName(location.pathname);
+  const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin';
 
   return (
     <footer className="colophon" data-colophon>
-      <div className="colophon__inner">
-        <p className="colophon__stamp">
-          · page {pageNum} · {pageName}
-        </p>
-        <p className="colophon__links">
-          Events · My RSVPs · My Events · Permissions · Tags
-        </p>
-        <p className="colophon__tagline">
-          A paper-craft festival, built by hand.
-        </p>
+      <div className="colophon__row">
+        <span className="colophon__mark" aria-hidden="true">EventNest 祭</span>
+        <span className="colophon__stamp tnum">page {pageNum} · {pageName}</span>
+      </div>
+      <div className="colophon__row">
+        <nav className="colophon__links" aria-label="Footer">
+          <Link to="/events">Events</Link>
+          {isAuthenticated && <Link to="/my-rsvps">My RSVPs</Link>}
+          {isAuthenticated && user?.role !== 'User' && <Link to="/my-events">My Events</Link>}
+          {isAdmin && <Link to="/admin/permissions">Permissions</Link>}
+          <Link to="/styleguide">Styleguide</Link>
+        </nav>
+        <span>A paper-craft festival, built by hand.</span>
       </div>
     </footer>
   );
