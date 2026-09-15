@@ -1,4 +1,136 @@
-import { PageHeader } from '../components/PageHeader';
+import { Link } from 'react-router';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../lib/api';
+import { useAuthStore } from '../lib/auth-store';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { StampEntry, type RsvpStatus } from '../components/StampEntry';
+import { ConfirmModal } from '../components/ConfirmModal';
+import { useState } from 'react';
+
+interface RsvpData {
+  id: string;
+  eventId: string;
+  userId: string;
+  eventTitle: string | null;
+  status: string;
+  guestCount: number;
+  notes: string | null;
+  respondedAt: string;
+}
+
+interface RsvpsResponse {
+  result: RsvpData[];
+}
+
 export function MyRsvpsPage() {
-  return <PageHeader overline="祭" title="My RSVPs" subtitle="Your event replies" />;
+  const { user, isAuthenticated } = useAuthStore();
+  const queryClient = useQueryClient();
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['rsvps', 'my'],
+    queryFn: () => api.get<RsvpsResponse>(`/api/users/${user?.id}/rsvps`),
+    enabled: isAuthenticated && !!user?.id,
+  });
+
+  const changeMutation = useMutation({
+    mutationFn: ({ eventId }: { eventId: string }) =>
+      api.post(`/api/events/${eventId}/rsvps`, { guestCount: 1 }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['rsvps', 'my'] }),
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: (eventId: string) => api.delete(`/api/events/${eventId}/rsvps`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rsvps', 'my'] });
+      setCancelTarget(null);
+    },
+  });
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{ paddingTop: 'var(--space-12)' }}>
+        <p style={{ textAlign: 'center' }}>Log in to see your RSVPs.</p>
+        <div style={{ textAlign: 'center', marginTop: 'var(--space-4)' }}>
+          <Link className="btn btn--primary" to="/login">Log in</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const rsvps = data?.result || [];
+  const now = new Date();
+  const upcoming = rsvps.filter((r) => r.status !== 'Cancelled' && new Date(r.respondedAt) >= now);
+  const past = rsvps.filter((r) => r.status !== 'Cancelled' && new Date(r.respondedAt) < now);
+  const cancelled = rsvps.filter((r) => r.status === 'Cancelled');
+
+  return (
+    <div className="stack-6">
+      <Breadcrumbs items={[{ label: 'Events', href: '/events' }, { label: 'My RSVPs' }]} />
+
+      <header className="page-doc">
+        <span className="washi page-doc__tape washi--sakura" aria-hidden="true" />
+        <span className="page-doc__kanji kanji-watermark" aria-hidden="true" lang="ja">縁</span>
+        <div className="page-doc__head">
+          <p className="page-doc__overline">Attendee · 縁</p>
+          <h1 className="page-doc__title">My RSVPs</h1>
+          <p className="page-doc__sub">Your responses, pinned in one place.</p>
+        </div>
+      </header>
+
+      <div className="stamp-log">
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="log-entry" aria-busy="true" style={{ minHeight: 60 }} />
+          ))
+        ) : rsvps.length === 0 ? (
+          <p style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--text-secondary)' }}>
+            No RSVPs yet. <Link to="/events">Browse events</Link>
+          </p>
+        ) : (
+          <>
+            {upcoming.length > 0 && (
+              <section className="log-group">
+                <h2 className="log-group__head">Upcoming <span className="tab__count">({upcoming.length})</span></h2>
+                {upcoming.map((r) => (
+                  <StampEntry
+                    key={r.id}
+                    rsvp={{ ...r, status: r.status as RsvpStatus }}
+                    onChangeStatus={(eventId) => changeMutation.mutate({ eventId })}
+                    onCancel={(eventId) => setCancelTarget(eventId)}
+                  />
+                ))}
+              </section>
+            )}
+            {past.length > 0 && (
+              <section className="log-group" style={{ marginTop: 'var(--space-6)' }}>
+                <h2 className="log-group__head">Past <span className="tab__count">({past.length})</span></h2>
+                {past.map((r) => (
+                  <StampEntry key={r.id} rsvp={{ ...r, status: r.status as RsvpStatus }} isPast />
+                ))}
+              </section>
+            )}
+            {cancelled.length > 0 && (
+              <details className="rsvp-details" style={{ marginTop: 'var(--space-6)' }}>
+                <summary>Cancelled ({cancelled.length})</summary>
+                {cancelled.map((r) => (
+                  <StampEntry key={r.id} rsvp={{ ...r, status: r.status as RsvpStatus }} />
+                ))}
+              </details>
+            )}
+          </>
+        )}
+      </div>
+
+      <ConfirmModal
+        open={!!cancelTarget}
+        title="Remove your RSVP?"
+        body="Keep it"
+        confirmLabel="Yes, cancel"
+        danger
+        onConfirm={() => cancelTarget && cancelMutation.mutate(cancelTarget)}
+        onCancel={() => setCancelTarget(null)}
+      />
+    </div>
+  );
 }
