@@ -1,4 +1,6 @@
 import { Link } from 'react-router';
+import type { MosaicSlot } from '../lib/mosaic';
+import { tilePatternClass } from '../lib/mosaic';
 
 interface EventTag {
   id: string;
@@ -20,12 +22,6 @@ interface Event {
   visibility: string;
   tags: EventTag[];
   createdAt: string;
-}
-
-interface Slot {
-  cls: string;
-  kind: 'feature' | 'portrait' | 'wide' | 'filler';
-  rot: number;
 }
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
@@ -65,12 +61,6 @@ function statusColor(status: string) {
   }
 }
 
-function PatternClass(event: Event) {
-  const patterns = ['pattern--chiyogami-hana', 'pattern--polka-sakura', 'pattern--tatami', 'pattern--asanoha', 'pattern--polka-sora', 'pattern--chiyogami-asa'];
-  const hash = event.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  return patterns[hash % patterns.length];
-}
-
 function tileTint(event: Event) {
   const tints = ['rgba(255,180,162,.08)', 'rgba(162,189,255,.08)', 'rgba(255,217,61,.08)', 'rgba(162,255,209,.08)'];
   const hash = event.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -79,7 +69,7 @@ function tileTint(event: Event) {
 
 interface PolaroidTileProps {
   event: Event;
-  slot: Slot;
+  slot: MosaicSlot;
 }
 
 export function PolaroidTile({ event, slot }: PolaroidTileProps) {
@@ -101,7 +91,7 @@ export function PolaroidTile({ event, slot }: PolaroidTileProps) {
       role="listitem"
     >
       <div className="tile__polaroid">
-        <div className={`tile__photo pattern ${PatternClass(event)}`}>
+        <div className={`tile__photo pattern ${tilePatternClass(event.id)}`}>
           <span className="tile__date-flag">{flag.md} · {flag.dow}</span>
           <span className="photo-corners" aria-hidden="true"><span /><span /><span /><span /></span>
         </div>

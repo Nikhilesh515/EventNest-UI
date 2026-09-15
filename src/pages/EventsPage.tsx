@@ -5,6 +5,7 @@ import { useAuthStore } from '../lib/auth-store';
 import { MosaicGrid } from '../components/MosaicGrid';
 import { FilterDrawer, type FilterState } from '../components/FilterDrawer';
 import { PageHeader } from '../components/PageHeader';
+import '../styles/tile-layout.css';
 
 interface EventTag {
   id: string;

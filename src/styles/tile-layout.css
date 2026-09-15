@@ -1,0 +1,39 @@
+/* Tile layout correction — rhythm floor + content-sized caption.
+   The frozen polaroid used a fixed caption track (`minmax(56px, 36%) 1fr`) on fixed mosaic
+   rows, so any caption taller than the remaining track was silently clipped by
+   `overflow: hidden`. Rows are now a minimum rhythm; the caption is sized to its budgeted
+   content; the decorative photo flexes above a floor. Nothing is amputated. */
+@media (min-width: 768px) {
+  .mosaic {
+    grid-auto-rows: minmax(var(--mosaic-row-h), auto);
+  }
+  .tile__polaroid {
+    grid-template-rows: minmax(var(--tile-photo-min, 84px), 1fr) auto;
+  }
+  .tile--feature,
+  .tile--portrait {
+    --tile-photo-min: 120px;
+  }
+  .tile--wide {
+    --tile-photo-min: 84px;
+  }
+}
+
+/* Collage completion — fillers that backfill unused event slots scale their 花 to the cell they
+   occupy. The frozen rule sized 花 for 1x1 filler cells only, so the larger backfilled slots
+   need proportionally larger glyphs. */
+.slot--feature-a .tile__filler,
+.slot--feature-b .tile__filler {
+  font-size: clamp(56px, 6vw, 88px);
+}
+.slot--portrait-a .tile__filler,
+.slot--portrait-b .tile__filler,
+.slot--portrait-c .tile__filler {
+  font-size: clamp(44px, 4.5vw, 68px);
+}
+.slot--wide-a .tile__filler,
+.slot--wide-b .tile__filler,
+.slot--wide-c .tile__filler,
+.slot--wide-d .tile__filler {
+  font-size: clamp(28px, 3vw, 42px);
+}
