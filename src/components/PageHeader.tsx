@@ -4,11 +4,12 @@ interface PageHeaderProps {
   subtitle?: string;
   actions?: React.ReactNode;
   tapeWidth?: 'full' | 'default';
+  className?: string;
 }
 
-export function PageHeader({ overline, title, subtitle, actions, tapeWidth = 'default' }: PageHeaderProps) {
+export function PageHeader({ overline, title, subtitle, actions, tapeWidth = 'default', className }: PageHeaderProps) {
   return (
-    <div className="page-doc">
+    <div className={`page-doc${className ? ` ${className}` : ''}`}>
       <div
         className={`page-doc__tape${tapeWidth === 'full' ? ' page-doc__tape--full' : ''}`}
         aria-hidden="true"
