@@ -4,6 +4,7 @@ import { AlbumRail } from './components/AlbumRail';
 import { TopBar } from './components/TopBar';
 import { TabBar } from './components/TabBar';
 import { Colophon } from './components/Colophon';
+import { ShellClassManager } from './components/ShellClassManager';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { EventsPage } from './pages/EventsPage';
@@ -16,12 +17,14 @@ import { AttendeesPage } from './pages/AttendeesPage';
 import { AdminPermissionsPage } from './pages/AdminPermissionsPage';
 import { AdminTagsPage } from './pages/AdminTagsPage';
 import './styles/tokens.css';
+import './styles/tailwind.css';
 import './styles/app.css';
 import './styles/views.css';
 
 export default function App() {
   return (
     <BrowserRouter>
+      <ShellClassManager />
       <SkipLink />
       <TopBar />
       <AlbumRail />

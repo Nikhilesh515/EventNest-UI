@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/*
+ * Tailwind CSS theme for EventNest
+ * Extends design tokens from tokens.css (CSS custom properties)
+ *
+ * Usage rules:
+ * - Use Tailwind for: layout (flex, grid), spacing, responsive, simple styling
+ * - Use vanilla CSS for: design components (.cover, .mosaic, .tile, .washi, .hanko)
+ * - See 05-Tailwind-Integration-Plan.md for full guidelines
+ */
+@theme {
+  /* Colors — from tokens.css */
+  --color-brand-primary: var(--shu-300);
+  --color-brand-wordmark: var(--shu-300);
+  --color-surface-page: var(--surface-page);
+  --color-surface-paper: var(--surface-paper);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-raised: var(--surface-raised);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-strong: var(--text-strong);
+  --color-text-inverse: var(--text-inverse);
+  --color-border-soft: var(--border-soft);
+  --color-border-strong: var(--border-strong);
+  --color-accent-coral: var(--shu-300);
+  --color-accent-coral-light: var(--shu-200);
+  --color-accent-coral-dark: var(--shu-400);
+
+  /* Typography — from tokens.css */
+  --font-display: 'Dela Gothic One', sans-serif;
+  --font-round: 'M PLUS Rounded 1c', sans-serif;
+  --font-body: 'Zen Maru Gothic', sans-serif;
+  --font-mono: ui-monospace, monospace;
+
+  /* Border radius — from tokens.css */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+
+  /* Shadows — from tokens.css */
+  --shadow-paper: var(--shadow-paper);
+  --shadow-lift: var(--shadow-lift);
+  --shadow-sticker: var(--shadow-sticker);
+
+  /* Z-index scale — from tokens.css */
+  --z-pattern: var(--z-pattern);
+  --z-base: var(--z-base);
+  --z-crease: var(--z-crease);
+  --z-tile: var(--z-tile);
+  --z-sticky: var(--z-sticky);
+  --z-tile-hover: var(--z-tile-hover);
+  --z-nav: var(--z-nav);
+  --z-rail: var(--z-rail);
+  --z-drawer: var(--z-drawer);
+  --z-tabbar: var(--z-tabbar);
+  --z-dropdown: var(--z-dropdown);
+  --z-tape: var(--z-tape);
+  --z-sticker: var(--z-sticker);
+  --z-modal-backdrop: var(--z-modal-backdrop);
+  --z-modal: var(--z-modal);
+  --z-toast: var(--z-toast);
+  --z-confetti: var(--z-confetti);
+  --z-focus-skip: var(--z-focus-skip);
+}
