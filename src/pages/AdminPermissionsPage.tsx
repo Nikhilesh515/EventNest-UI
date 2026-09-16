@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import toast from 'react-hot-toast';
+import { api, ApiRequestError } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { PermRow } from '../components/PermRow';
@@ -54,8 +55,12 @@ export function AdminPermissionsPage() {
     mutationFn: (permissionName: string) =>
       api.post('/api/permissions/grant', { userId: selectedUserId, permissionName }),
     onSuccess: () => {
+      toast.success('Permission granted');
       queryClient.invalidateQueries({ queryKey: ['permissions', selectedUserId] });
       setConfirmGrant(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to grant permission');
     },
   });
 
@@ -63,8 +68,12 @@ export function AdminPermissionsPage() {
     mutationFn: (permissionName: string) =>
       api.post('/api/permissions/revoke', { userId: selectedUserId, permissionName }),
     onSuccess: () => {
+      toast.success('Permission revoked');
       queryClient.invalidateQueries({ queryKey: ['permissions', selectedUserId] });
       setConfirmRevoke(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to revoke permission');
     },
   });
 

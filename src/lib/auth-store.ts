@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import toast from "react-hot-toast";
 import { api } from "./api";
 import { tokenHolder } from "./token-holder";
 import type { User } from "../types";
@@ -130,7 +131,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 }));
 
-tokenHolder.setExpiredHandler(() => useAuthStore.getState().logout());
+tokenHolder.setExpiredHandler(() => {
+  toast.error("Session expired. Please log in again.", { id: "session-expired" });
+  useAuthStore.getState().logout();
+});
 
 export function useEffectiveAuth(): boolean {
   return useAuthStore(

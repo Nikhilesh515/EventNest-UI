@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
 import { isAdmin } from '../lib/permissions';
@@ -107,10 +108,11 @@ export function EventsPage() {
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
+      toast.success('Link copied to clipboard');
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1200);
     } catch {
-      // clipboard unavailable — no-op
+      toast.error('Could not copy link');
     }
   };
 

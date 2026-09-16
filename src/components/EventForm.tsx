@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { Icon } from './Icon';
 import { Modal } from './Modal';
@@ -83,6 +84,7 @@ export function EventForm({
     mutationFn: ({ name, color }: { name: string; color: string }) =>
       api.post<{ result: EventTag }>('/api/tags', { name, color }),
     onSuccess: (data) => {
+      toast.success('Tag created');
       queryClient.invalidateQueries({ queryKey: ['tags'] });
       const created = data?.result;
       if (created?.id) {
@@ -94,7 +96,7 @@ export function EventForm({
       setNewTagError('');
     },
     onError: (err) => {
-      setNewTagError(err instanceof Error ? err.message : 'Could not create the tag.');
+      toast.error(err instanceof Error ? err.message : 'Could not create the tag.');
     },
   });
 

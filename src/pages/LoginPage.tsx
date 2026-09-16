@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../lib/auth-store';
 import { NekoMascot } from '../components/NekoMascot';
 import { Icon } from '../components/Icon';
@@ -10,7 +11,6 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
@@ -33,13 +33,13 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setError('');
     setLoading(true);
     try {
       await login(email, password);
+      toast.success('Welcome back!');
       navigate(from && from !== '/login' && from !== '/register' ? from : '/events', { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      toast.error(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -68,7 +68,6 @@ export function LoginPage() {
             <span className="cover__kanji kanji-watermark" aria-hidden="true" lang="ja">祭</span>
             <h1 className="cover__title">Welcome back.</h1>
             <p className="cover__sub">Pick up where you left off.</p>
-            {error && <div className="alert alert--error">{error}</div>}
             <form onSubmit={handleSubmit} noValidate>
               <div className={`field${errors.email ? ' field--error' : ''}`}>
                 <label className="field__label" htmlFor="a-email">Email</label>

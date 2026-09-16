@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { afterAll, afterEach, beforeAll } from 'vitest';
+import toast from 'react-hot-toast';
 import { server } from './mocks/server';
 
 Object.defineProperty(window, 'matchMedia', {
@@ -17,5 +18,8 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+  server.resetHandlers();
+  toast.remove();
+});
 afterAll(() => server.close());

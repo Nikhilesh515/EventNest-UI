@@ -1,24 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../mocks/server';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router';
-import type { ReactElement } from 'react';
 import { EventsPage } from '../pages/EventsPage';
 import { useAuthStore } from '../lib/auth-store';
-
-function renderWithProviders(ui: ReactElement) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter>{ui}</MemoryRouter>
-    </QueryClientProvider>,
-  );
-}
+import { renderWithProviders } from './test-utils';
 
 describe('Filter/Search/Pagination', () => {
   beforeEach(() => {

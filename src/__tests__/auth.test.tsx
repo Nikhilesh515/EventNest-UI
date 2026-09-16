@@ -1,10 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw";
-import type { ReactElement } from "react";
 import { LoginPage } from "../pages/LoginPage";
 import { RequireAuth } from "../components/RequireAuth";
 import { TabBar } from "../components/TabBar";
@@ -12,17 +9,7 @@ import { useAuthStore } from "../lib/auth-store";
 import { tokenHolder } from "../lib/token-holder";
 import { server } from "../mocks/server";
 import { testUser } from "../mocks/handlers";
-
-function renderWithProviders(ui: ReactElement) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter>{ui}</MemoryRouter>
-    </QueryClientProvider>,
-  );
-}
+import { renderWithProviders } from "./test-utils";
 
 const STORED_PROFILE = JSON.stringify({
   id: "1",
@@ -72,6 +59,7 @@ describe("Auth Flow", () => {
       expect(useAuthStore.getState().isAuthenticated).toBe(true);
     });
 
+    expect(await screen.findByText("Welcome back!")).toBeInTheDocument();
     expect(localStorage.getItem("eventnest.access_token")).toBeNull();
     expect(localStorage.getItem("eventnest.refresh_token")).toBeNull();
     expect(JSON.parse(localStorage.getItem("eventnest.user")!)).toMatchObject({
@@ -90,6 +78,7 @@ describe("Auth Flow", () => {
     await waitFor(() => {
       expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument();
     });
+    expect(document.querySelector(".alert")).toBeNull();
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
   });
 

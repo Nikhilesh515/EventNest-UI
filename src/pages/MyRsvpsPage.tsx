@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import toast from 'react-hot-toast';
+import { api, ApiRequestError } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { StampEntry } from '../components/StampEntry';
@@ -34,17 +35,25 @@ export function MyRsvpsPage() {
     mutationFn: ({ rsvpId, status }: { rsvpId: string; status: RsvpStatus }) =>
       api.put(`/api/rsvps/${rsvpId}`, { status: STATUS_PARAM[status] }),
     onSuccess: () => {
+      toast.success('RSVP updated');
       queryClient.invalidateQueries({ queryKey: ['rsvps', 'my'] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update RSVP');
     },
   });
 
   const cancelMutation = useMutation({
     mutationFn: (eventId: string) => api.delete(`/api/events/${eventId}/rsvps`),
     onSuccess: () => {
+      toast.success('RSVP cancelled');
       queryClient.invalidateQueries({ queryKey: ['rsvps', 'my'] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setCancelTarget(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to cancel RSVP');
     },
   });
 

@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router";
+import toast from "react-hot-toast";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuthStore, useEffectiveAuth } from "../lib/auth-store";
 
@@ -17,6 +18,7 @@ export function TopBar({ indexOpen, onOpenIndex }: TopBarProps) {
 
   function handleLogout() {
     logout();
+    toast.success("Logged out");
     navigate("/login");
   }
 

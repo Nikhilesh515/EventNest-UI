@@ -5,10 +5,12 @@ import toast from 'react-hot-toast';
 import { api, ApiRequestError } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { EventConfirmDialogs } from '../components/EventConfirmDialogs';
 import { Postcard } from '../components/Postcard';
 import { ReplyCard } from '../components/ReplyCard';
 import { PostcardSpread } from '../components/PostcardSpread';
 import { tagStyleVars } from '../lib/tag-style';
+import { EVENT_ACTION_LABELS, type EventAction } from '../lib/event-status';
 import { useColorMode } from '../lib/theme-store';
 import type { RsvpStatus as RsvpChoice } from '../components/RsvpStickerSheet';
 import type { Event, Rsvp } from '../types';
@@ -47,6 +49,7 @@ export function EventDetailPage() {
   const [selectedStatus, setSelectedStatus] = useState<RsvpChoice | null>(null);
   const [guests, setGuests] = useState(1);
   const [notes, setNotes] = useState('');
+  const [confirmAction, setConfirmAction] = useState<'cancel' | 'delete' | null>(null);
 
   const { data: eventData, isLoading: eventLoading, error: eventError } = useQuery({
     queryKey: ['event', id],
@@ -126,6 +129,33 @@ export function EventDetailPage() {
     },
   });
 
+  const statusMutation = useMutation({
+    mutationFn: (action: EventAction) => api.put(`/api/events/${id}/${action}`, {}),
+    onSuccess: (_data, action) => {
+      toast.success(EVENT_ACTION_LABELS[action]);
+      queryClient.invalidateQueries({ queryKey: ['event', id] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['events', 'my'] });
+      setConfirmAction(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update event status');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => api.delete(`/api/events/${id}`),
+    onSuccess: () => {
+      toast.success('Event deleted');
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['events', 'my'] });
+      navigate('/my-events');
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to delete event');
+    },
+  });
+
   if (eventLoading) {
     return (
       <div className="stack-6">
@@ -149,7 +179,7 @@ export function EventDetailPage() {
           <div className="page-doc__tape" aria-hidden="true" />
           <div className="page-doc__content">
             <h1 className="page-doc__title">Event not found</h1>
-            <p className="page-doc__subtitle">
+            <p className="alert alert--error">
               {(eventError as ApiRequestError)?.message || "We couldn't find that event."}
             </p>
             <button className="btn btn--primary" onClick={() => navigate('/events')}>
@@ -211,6 +241,10 @@ export function EventDetailPage() {
             canManage={isOwner}
             hasManageRsvp={isOwner}
             isEnded={isEnded}
+            onPublish={() => statusMutation.mutate('publish')}
+            onCancel={() => setConfirmAction('cancel')}
+            onDelete={() => setConfirmAction('delete')}
+            loading={statusMutation.isPending || deleteMutation.isPending}
           />
         }
         reply={
@@ -230,6 +264,13 @@ export function EventDetailPage() {
             onCancel={() => cancelMutation.mutate()}
           />
         }
+      />
+
+      <EventConfirmDialogs
+        action={confirmAction}
+        onConfirmCancel={() => statusMutation.mutate('cancel')}
+        onConfirmDelete={() => deleteMutation.mutate()}
+        onDismiss={() => setConfirmAction(null)}
       />
     </div>
   );

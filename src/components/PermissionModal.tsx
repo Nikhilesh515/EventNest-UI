@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { Modal } from './Modal';
-import { api } from '../lib/api';
+import { api, ApiRequestError } from '../lib/api';
 import type { Role } from '../types';
 
 interface PermissionModalProps {
@@ -82,9 +83,13 @@ export function PermissionModal({ open, mode, userId, roleId, onClose, onSave }:
   const updateRoleMut = useMutation({
     mutationFn: (data: { permissionNames: string[] }) => api.put(`/api/roles/${roleId}`, data),
     onSuccess: () => {
+      toast.success('Role permissions updated');
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       onSave?.();
       onClose();
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update role permissions');
     },
   });
 
@@ -101,11 +106,16 @@ export function PermissionModal({ open, mode, userId, roleId, onClose, onSave }:
       Promise.all([
         ...toGrant.map(p => grantMut.mutateAsync(p)),
         ...toRevoke.map(p => revokeMut.mutateAsync(p)),
-      ]).then(() => {
-        queryClient.invalidateQueries({ queryKey: ['user-permissions', userId] });
-        onSave?.();
-        onClose();
-      });
+      ])
+        .then(() => {
+          toast.success('Permissions updated');
+          queryClient.invalidateQueries({ queryKey: ['user-permissions', userId] });
+          onSave?.();
+          onClose();
+        })
+        .catch((error: unknown) => {
+          toast.error(error instanceof Error ? error.message : 'Failed to update permissions');
+        });
     } else if (mode === 'role' && roleId) {
       updateRoleMut.mutate({ permissionNames: selectedPerms });
     }

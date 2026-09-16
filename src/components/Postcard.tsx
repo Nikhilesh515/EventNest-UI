@@ -11,9 +11,23 @@ interface PostcardProps {
   canManage: boolean;
   hasManageRsvp: boolean;
   isEnded: boolean;
+  onPublish?: (id: string) => void;
+  onCancel?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  loading?: boolean;
 }
 
-export function Postcard({ event, isOwner, canManage, hasManageRsvp, isEnded }: PostcardProps) {
+export function Postcard({
+  event,
+  isOwner,
+  canManage,
+  hasManageRsvp,
+  isEnded,
+  onPublish,
+  onCancel,
+  onDelete,
+  loading,
+}: PostcardProps) {
   const mode = useColorMode();
   const firstTagColor = event.tags[0]?.color || '#A8D8EA';
   const patchTint = normalizeTag(firstTagColor, mode).fill;
@@ -69,10 +83,24 @@ export function Postcard({ event, isOwner, canManage, hasManageRsvp, isEnded }: 
           <div className="action-bar">
             <Link className="btn btn--secondary btn--sm" to={`/events/${event.id}/edit`}>Edit</Link>
             {event.status === 'Draft' && (
-              <button type="button" className="btn btn--leaf btn--sm">Publish</button>
+              <button
+                type="button"
+                className="btn btn--leaf btn--sm"
+                onClick={() => onPublish?.(event.id)}
+                disabled={loading}
+              >
+                Publish
+              </button>
             )}
             {event.status === 'Published' && (
-              <button type="button" className="btn btn--sun btn--sm">Cancel event</button>
+              <button
+                type="button"
+                className="btn btn--sun btn--sm"
+                onClick={() => onCancel?.(event.id)}
+                disabled={loading}
+              >
+                Cancel event
+              </button>
             )}
             {hasManageRsvp && (
               <Link className="btn btn--secondary btn--sm" to={`/events/${event.id}/attendees`}>
@@ -81,7 +109,14 @@ export function Postcard({ event, isOwner, canManage, hasManageRsvp, isEnded }: 
             )}
           </div>
           <div className="action-bar action-bar--danger">
-            <button type="button" className="btn btn--danger btn--sm">Delete</button>
+            <button
+              type="button"
+              className="btn btn--danger btn--sm"
+              onClick={() => onDelete?.(event.id)}
+              disabled={loading}
+            >
+              Delete
+            </button>
           </div>
         </section>
       )}

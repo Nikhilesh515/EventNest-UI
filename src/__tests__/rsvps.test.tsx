@@ -1,27 +1,19 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../mocks/server';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter, Routes, Route } from 'react-router';
+import { Routes, Route } from 'react-router';
 import { EventDetailPage } from '../pages/EventDetailPage';
-import { AppToaster } from '../components/AppToaster';
 import { useAuthStore } from '../lib/auth-store';
+import { renderWithProviders } from './test-utils';
 
 function renderEventDetail() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={['/events/1']}>
-        <Routes>
-          <Route path="/events/:id" element={<EventDetailPage />} />
-        </Routes>
-        <AppToaster />
-      </MemoryRouter>
-    </QueryClientProvider>,
+  return renderWithProviders(
+    <Routes>
+      <Route path="/events/:id" element={<EventDetailPage />} />
+    </Routes>,
+    { initialEntries: ['/events/1'] },
   );
 }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../lib/auth-store';
 import { NekoMascot } from '../components/NekoMascot';
 import { Icon } from '../components/Icon';
@@ -12,7 +13,6 @@ export function RegisterPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const register = useAuthStore((s) => s.register);
@@ -37,13 +37,13 @@ export function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setError('');
     setLoading(true);
     try {
       await register(name, email, password);
+      toast.success('Account created');
       navigate('/events');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      toast.error(err instanceof Error ? err.message : 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,6 @@ export function RegisterPage() {
             <span className="cover__kanji kanji-watermark" aria-hidden="true" lang="ja">祭</span>
             <h1 className="cover__title">Create your account</h1>
             <p className="cover__sub">Set up your stall in a minute.</p>
-            {error && <div className="alert alert--error">{error}</div>}
             <form onSubmit={handleSubmit} noValidate>
               <div className={`field${errors.name ? ' field--error' : ''}`}>
                 <label className="field__label" htmlFor="a-name">Display name</label>

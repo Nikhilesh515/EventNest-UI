@@ -491,6 +491,8 @@
 .cover__title { font-family: var(--font-display); font-weight: 400; font-size: var(--type-h1); color: var(--text-strong); }
 .cover__sub { color: var(--text-secondary); font-size: var(--type-body-s); }
 .cover__mobile-mascot { inline-size: var(--mascot-sm); margin-inline: auto; color: var(--mascot-ink); }
+.cover__card form .field + .field { margin-block-start: var(--space-4); }
+.cover__card form .btn--block { margin-block-start: var(--space-5); }
 @media (min-width: 768px) {
   .cover { grid-template-columns: 1fr 1fr; }
   .cover__art { display: flex; }
@@ -498,6 +500,10 @@
 }
 @media (min-width: 1024px) {
   .cover { margin-block-start: 0; min-block-size: 100vh; }
+  .shell-cover .topbar {
+    block-size: auto; min-block-size: 62px;
+    background: transparent; border-bottom: 0; box-shadow: none;
+  }
 }
 
 /* ==========================================================================

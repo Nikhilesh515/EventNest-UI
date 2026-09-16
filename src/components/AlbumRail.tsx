@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
+import toast from "react-hot-toast";
 import { useAuthStore, useEffectiveAuth } from "../lib/auth-store";
 import { isAdmin, isModerator } from "../lib/permissions";
 import { ThemeToggle } from "./ThemeToggle";
@@ -72,6 +73,7 @@ export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
 
   function handleLogout() {
     logout();
+    toast.success("Logged out");
     navigate("/login");
   }
 

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import toast from 'react-hot-toast';
+import { api, ApiRequestError } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { PunchRow } from '../components/PunchRow';
-import { ConfirmModal } from '../components/ConfirmModal';
+import { EventConfirmDialogs } from '../components/EventConfirmDialogs';
+import { EVENT_ACTION_LABELS, type EventAction } from '../lib/event-status';
 import type { Event } from '../types';
 
 interface EventsResponse {
@@ -26,7 +28,7 @@ export function MyEventsPage() {
   const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabKey>('all');
-  const [confirmAction, setConfirmAction] = useState<{ type: string; id: string } | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ type: 'cancel' | 'delete'; id: string } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['events', 'my'],
@@ -35,19 +37,27 @@ export function MyEventsPage() {
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, action }: { id: string; action: string }) =>
+    mutationFn: ({ id, action }: { id: string; action: EventAction }) =>
       api.put(`/api/events/${id}/${action}`, {}),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      toast.success(EVENT_ACTION_LABELS[variables.action]);
       queryClient.invalidateQueries({ queryKey: ['events', 'my'] });
       setConfirmAction(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update event status');
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/api/events/${id}`),
     onSuccess: () => {
+      toast.success('Event deleted');
       queryClient.invalidateQueries({ queryKey: ['events', 'my'] });
       setConfirmAction(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to delete event');
     },
   });
 
@@ -135,23 +145,13 @@ export function MyEventsPage() {
         </div>
       </div>
 
-      <ConfirmModal
-        open={confirmAction?.type === 'cancel'}
-        title="Cancel this event?"
-        body="Guests will see it's off."
-        confirmLabel="Cancel event"
-        danger
-        onConfirm={() => confirmAction && statusMutation.mutate({ id: confirmAction.id, action: 'cancel' })}
-        onCancel={() => setConfirmAction(null)}
-      />
-      <ConfirmModal
-        open={confirmAction?.type === 'delete'}
-        title="Delete this event?"
-        body="This removes the event and its RSVPs. This can't be undone."
-        confirmLabel="Delete event"
-        danger
-        onConfirm={() => confirmAction && deleteMutation.mutate(confirmAction.id)}
-        onCancel={() => setConfirmAction(null)}
+      <EventConfirmDialogs
+        action={confirmAction?.type ?? null}
+        onConfirmCancel={() =>
+          confirmAction && statusMutation.mutate({ id: confirmAction.id, action: 'cancel' })
+        }
+        onConfirmDelete={() => confirmAction && deleteMutation.mutate(confirmAction.id)}
+        onDismiss={() => setConfirmAction(null)}
       />
     </div>
   );
