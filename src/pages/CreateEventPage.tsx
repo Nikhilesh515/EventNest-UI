@@ -1,40 +1,22 @@
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import toast from 'react-hot-toast';
+import { api, ApiRequestError } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
+import { isModerator } from '../lib/permissions';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { EventForm, type EventFormMode } from '../components/EventForm';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface TagsResponse {
-  result: EventTag[];
-}
+import type { CreateEventInput, Event, EventFormValues, TagsResponse } from '../types';
 
 interface CreateEventResponse {
-  result: { id: string };
-}
-
-interface EventFormValues {
-  title: string;
-  description: string;
-  location: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  visibility: 'Public' | 'Private';
-  tagIds: string[];
+  result: Event;
 }
 
 export function CreateEventPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const canCreateTag = ['Admin', 'SuperAdmin', 'Moderator'].includes(user?.role || '');
+  const canCreateTag = isModerator(user);
 
   const { data: tagsData } = useQuery({
     queryKey: ['tags'],
@@ -43,15 +25,20 @@ export function CreateEventPage() {
 
   const createMutation = useMutation({
     mutationFn: async ({ values, mode }: { values: EventFormValues; mode: EventFormMode }) => {
-      const created = await api.post<CreateEventResponse>('/api/events', values);
+      const input: CreateEventInput = values;
+      const created = await api.post<CreateEventResponse>('/api/events', input);
       if (mode === 'publish') {
         await api.put(`/api/events/${created.result.id}/publish`, {});
       }
       return created;
     },
     onSuccess: (data) => {
+      toast.success('Event created successfully');
       queryClient.invalidateQueries({ queryKey: ['events'] });
       navigate(`/events/${data.result.id}`);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to create event');
     },
   });
 

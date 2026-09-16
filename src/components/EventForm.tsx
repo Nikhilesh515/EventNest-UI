@@ -5,23 +5,7 @@ import { Icon } from './Icon';
 import { Modal } from './Modal';
 import { tagStyleVars } from '../lib/tag-style';
 import { useColorMode } from '../lib/theme-store';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface EventFormValues {
-  title: string;
-  description: string;
-  location: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  visibility: 'Public' | 'Private';
-  tagIds: string[];
-}
+import type { EventFormValues, EventTag } from '../types';
 
 export type EventFormMode = 'draft' | 'publish';
 

@@ -1,27 +1,18 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import toast from 'react-hot-toast';
+import { api, ApiRequestError } from '../lib/api';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { ConfirmModal } from '../components/ConfirmModal';
-
-interface TagData {
-  id: string;
-  name: string;
-  color: string;
-  createdAt: string;
-}
-
-interface TagsResponse {
-  result: TagData[];
-}
+import type { Tag, TagsResponse } from '../types';
 
 export function AdminTagsPage() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
-  const [editTag, setEditTag] = useState<TagData | null>(null);
+  const [editTag, setEditTag] = useState<Tag | null>(null);
   const [tagName, setTagName] = useState('');
   const [tagColor, setTagColor] = useState('#3b82f6');
-  const [deleteTarget, setDeleteTarget] = useState<TagData | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Tag | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['tags'],
@@ -31,10 +22,14 @@ export function AdminTagsPage() {
   const createMutation = useMutation({
     mutationFn: (values: { name: string; color: string }) => api.post('/api/tags', values),
     onSuccess: () => {
+      toast.success('Tag created successfully');
       queryClient.invalidateQueries({ queryKey: ['tags'] });
       setShowForm(false);
       setTagName('');
       setTagColor('#3b82f6');
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to create tag');
     },
   });
 
@@ -42,18 +37,26 @@ export function AdminTagsPage() {
     mutationFn: (values: { id: string; name: string; color: string }) =>
       api.put(`/api/tags/${values.id}`, { name: values.name, color: values.color }),
     onSuccess: () => {
+      toast.success('Tag updated successfully');
       queryClient.invalidateQueries({ queryKey: ['tags'] });
       setEditTag(null);
       setTagName('');
       setTagColor('#3b82f6');
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update tag');
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/api/tags/${id}`),
     onSuccess: () => {
+      toast.success('Tag deleted');
       queryClient.invalidateQueries({ queryKey: ['tags'] });
       setDeleteTarget(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to delete tag');
     },
   });
 
@@ -69,7 +72,7 @@ export function AdminTagsPage() {
     }
   };
 
-  const startEdit = (tag: TagData) => {
+  const startEdit = (tag: Tag) => {
     setEditTag(tag);
     setTagName(tag.name);
     setTagColor(tag.color);

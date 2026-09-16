@@ -6,29 +6,10 @@ import { useAuthStore } from '../lib/auth-store';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { PunchRow } from '../components/PunchRow';
 import { ConfirmModal } from '../components/ConfirmModal';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface EventData {
-  id: string;
-  title: string;
-  location: string | null;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  goingCount: number;
-  maybeCount: number;
-  status: string;
-  visibility: string;
-  tags: EventTag[];
-}
+import type { Event } from '../types';
 
 interface EventsResponse {
-  result: EventData[];
+  result: Event[];
 }
 
 type TabKey = 'all' | 'draft' | 'published' | 'completed' | 'cancelled';

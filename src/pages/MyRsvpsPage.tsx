@@ -3,25 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
 import { Breadcrumbs } from '../components/Breadcrumbs';
-import { StampEntry, type RsvpStatus } from '../components/StampEntry';
+import { StampEntry } from '../components/StampEntry';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { useState } from 'react';
-
-interface RsvpData {
-  id: string;
-  eventId: string;
-  userId: string;
-  eventTitle: string | null;
-  eventStartsAt: string | null;
-  eventLocation: string | null;
-  status: string;
-  guestCount: number;
-  notes: string | null;
-  respondedAt: string;
-}
+import type { RsvpDetail, RsvpStatus } from '../types';
 
 interface RsvpsResponse {
-  result: RsvpData[];
+  result: RsvpDetail[];
 }
 
 const STATUS_PARAM: Record<RsvpStatus, string> = {
@@ -73,7 +61,7 @@ export function MyRsvpsPage() {
 
   const rsvps = data?.result || [];
   const now = new Date();
-  const eventDate = (r: RsvpData) => new Date(r.eventStartsAt || r.respondedAt);
+  const eventDate = (r: RsvpDetail) => new Date(r.eventStartsAt || r.respondedAt);
   const upcoming = rsvps.filter((r) => r.status !== 'Cancelled' && eventDate(r) >= now);
   const past = rsvps.filter((r) => r.status !== 'Cancelled' && eventDate(r) < now);
   const cancelled = rsvps.filter((r) => r.status === 'Cancelled');
@@ -114,7 +102,7 @@ export function MyRsvpsPage() {
                 {upcoming.map((r) => (
                   <StampEntry
                     key={r.id}
-                    rsvp={{ ...r, status: r.status as RsvpStatus }}
+                    rsvp={r}
                     onChangeStatus={(rsvpId, status) => changeMutation.mutate({ rsvpId, status })}
                     onCancel={(eventId) => setCancelTarget(eventId)}
                   />
@@ -125,7 +113,7 @@ export function MyRsvpsPage() {
               <section className="log-group" style={{ marginTop: 'var(--space-6)' }}>
                 <h2 className="log-group__head">Past <span className="tab__count">({past.length})</span></h2>
                 {past.map((r) => (
-                  <StampEntry key={r.id} rsvp={{ ...r, status: r.status as RsvpStatus }} isPast />
+                  <StampEntry key={r.id} rsvp={r} isPast />
                 ))}
               </section>
             )}
@@ -133,7 +121,7 @@ export function MyRsvpsPage() {
               <details className="rsvp-details" style={{ marginTop: 'var(--space-6)' }}>
                 <summary>Cancelled ({cancelled.length})</summary>
                 {cancelled.map((r) => (
-                  <StampEntry key={r.id} rsvp={{ ...r, status: r.status as RsvpStatus }} isPast />
+                  <StampEntry key={r.id} rsvp={r} isPast />
                 ))}
               </details>
             )}

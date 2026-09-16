@@ -1,30 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import toast from 'react-hot-toast';
+import { api, ApiRequestError } from '../lib/api';
+import { getRoleBadgeClass } from '../lib/roles';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { PermissionModal } from '../components/PermissionModal';
-
-function getRoleBadgeClass(roleName: string): string {
-  switch (roleName.toLowerCase()) {
-    case 'superadmin': return 'badge--superadmin';
-    case 'admin': return 'badge--admin';
-    case 'moderator': return 'badge--moderator';
-    case 'organizer': return 'badge--organizer';
-    default: return 'badge--user';
-  }
-}
-
-interface RoleDto {
-  id: string;
-  name: string;
-  displayName: string;
-  description: string | null;
-  sortOrder: number;
-  permissionNames: string[];
-  userCount: number;
-  createdAt: string;
-}
+import type { Role } from '../types';
 
 export function AdminRolesPage() {
   const queryClient = useQueryClient();
@@ -33,38 +15,50 @@ export function AdminRolesPage() {
   const [formName, setFormName] = useState('');
   const [formDisplayName, setFormDisplayName] = useState('');
   const [formDescription, setFormDescription] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<RoleDto | null>(null);
-  const [permRole, setPermRole] = useState<RoleDto | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Role | null>(null);
+  const [permRole, setPermRole] = useState<Role | null>(null);
 
-  const { data: roles, isLoading } = useQuery<RoleDto[]>({
+  const { data: roles, isLoading } = useQuery<Role[]>({
     queryKey: ['roles'],
-    queryFn: () => api.get<{ result: RoleDto[] }>('/api/roles').then((r) => r.result),
+    queryFn: () => api.get<{ result: Role[] }>('/api/roles').then((r) => r.result),
   });
 
   const createMut = useMutation({
     mutationFn: (data: { name: string; displayName: string; description?: string; permissionNames: string[] }) =>
-      api.post<{ result: RoleDto }>('/api/roles', data),
+      api.post<{ result: Role }>('/api/roles', data),
     onSuccess: (res) => {
+      toast.success('Role created successfully');
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       resetForm();
       setPermRole(res.result);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to create role');
     },
   });
 
   const updateMut = useMutation({
     mutationFn: ({ id, ...data }: { id: string; name?: string; displayName?: string; description?: string }) =>
-      api.put<{ result: RoleDto }>(`/api/roles/${id}`, data),
+      api.put<{ result: Role }>(`/api/roles/${id}`, data),
     onSuccess: () => {
+      toast.success('Role updated successfully');
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       resetForm();
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update role');
     },
   });
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => api.delete(`/api/roles/${id}`),
     onSuccess: () => {
+      toast.success('Role deleted');
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       setDeleteTarget(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to delete role');
     },
   });
 
@@ -81,7 +75,7 @@ export function AdminRolesPage() {
     setCreating(true);
   }
 
-  function startEdit(role: RoleDto) {
+  function startEdit(role: Role) {
     setCreating(false);
     setEditingId(role.id);
     setFormName(role.name);

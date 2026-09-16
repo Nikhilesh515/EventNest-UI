@@ -1,16 +1,20 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { QueryProvider } from './lib/query-provider';
-import App from './App';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { QueryProvider } from "./lib/query-provider";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { AppToaster } from "./components/AppToaster";
+import App from "./App";
 
-// Hydrate auth state from localStorage
-import { useAuthStore } from './lib/auth-store';
-useAuthStore.getState().hydrate();
+import { useAuthStore } from "./lib/auth-store";
+void useAuthStore.getState().bootstrap();
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryProvider>
-      <App />
-    </QueryProvider>
+    <ErrorBoundary>
+      <QueryProvider>
+        <App />
+      </QueryProvider>
+      <AppToaster />
+    </ErrorBoundary>
   </StrictMode>,
 );

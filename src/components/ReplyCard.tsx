@@ -1,17 +1,12 @@
 import { RsvpStickerSheet, type RsvpStatus } from './RsvpStickerSheet';
 import { CapacityMeter } from './CapacityMeter';
+import { formatDate } from '../lib/date';
+import type { Event } from '../types';
 
-interface EventData {
-  id: string;
-  status: string;
-  endsAt: string;
-  capacity: number;
-  goingCount: number;
-  organizerId: string;
-}
+type ReplyCardEvent = Pick<Event, 'id' | 'status' | 'endsAt' | 'capacity' | 'goingCount' | 'organizerId'>;
 
 interface ReplyCardProps {
-  event: EventData;
+  event: ReplyCardEvent;
   isOwner: boolean;
   isEnded: boolean;
   showHanko: boolean;
@@ -24,15 +19,6 @@ interface ReplyCardProps {
   onNotesChange: (notes: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
 }
 
 export function ReplyCard({
@@ -64,7 +50,7 @@ export function ReplyCard({
             {isOwner && <p className="rsvp-closed-note">You&apos;re hosting this event.</p>}
             {event.status === 'Draft' && <p className="rsvp-closed-note">This event isn&apos;t published yet.</p>}
             {event.status === 'Cancelled' && <p className="rsvp-closed-note">This event was cancelled.</p>}
-            {isEnded && <p className="rsvp-closed-note">This event has ended on {formatDate(event.endsAt)}.</p>}
+            {isEnded && <p className="rsvp-closed-note">This event has ended on {formatDate(event.endsAt, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}.</p>}
           </>
         ) : (
           <RsvpStickerSheet

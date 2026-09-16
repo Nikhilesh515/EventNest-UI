@@ -1,14 +1,9 @@
 import { tagStyleVars } from '../lib/tag-style';
 import { useColorMode } from '../lib/theme-store';
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
+import type { EventTag } from '../types';
 
 interface TagChipProps {
-  tag: Tag;
+  tag: EventTag;
   tilt?: number | null;
   md?: boolean;
   className?: string;
@@ -31,7 +26,7 @@ export function TagChip({ tag, tilt = null, md = false, className }: TagChipProp
 }
 
 interface TagChipListProps {
-  tags: Tag[];
+  tags: EventTag[];
   max?: number;
   tilts?: number[] | null;
   md?: boolean;

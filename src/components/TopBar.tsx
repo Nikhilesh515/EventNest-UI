@@ -1,6 +1,6 @@
-import { Link, useLocation, useNavigate } from 'react-router';
-import { ThemeToggle } from './ThemeToggle';
-import { useAuthStore } from '../lib/auth-store';
+import { Link, useLocation, useNavigate } from "react-router";
+import { ThemeToggle } from "./ThemeToggle";
+import { useAuthStore, useEffectiveAuth } from "../lib/auth-store";
 
 interface TopBarProps {
   indexOpen: boolean;
@@ -10,19 +10,23 @@ interface TopBarProps {
 export function TopBar({ indexOpen, onOpenIndex }: TopBarProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, user, logout } = useAuthStore();
-  const isCover = location.pathname === '/login' || location.pathname === '/register';
+  const { user, logout } = useAuthStore();
+  const isAuthenticated = useEffectiveAuth();
+  const isCover =
+    location.pathname === "/login" || location.pathname === "/register";
 
   function handleLogout() {
     logout();
-    navigate('/login');
+    navigate("/login");
   }
 
   return (
     <header className="topbar" data-topbar role="banner">
       <Link className="topbar__brand" to="/events" aria-label="EventNest home">
         <span className="topbar__wordmark">EventNest</span>
-        <span className="topbar__hanko" aria-hidden="true">祭</span>
+        <span className="topbar__hanko" aria-hidden="true">
+          祭
+        </span>
       </Link>
       <span className="topbar__spacer" />
       {!isCover && (

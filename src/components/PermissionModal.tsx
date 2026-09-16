@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Modal } from './Modal';
 import { api } from '../lib/api';
+import type { Role } from '../types';
 
 interface PermissionModalProps {
   open: boolean;
@@ -18,17 +19,6 @@ interface UserPermission {
   group: string;
   isGranted: boolean;
   source: 'role-default' | 'direct-grant' | 'none';
-}
-
-interface RoleDto {
-  id: string;
-  name: string;
-  displayName: string;
-  description: string | null;
-  sortOrder: number;
-  permissionNames: string[];
-  userCount: number;
-  createdAt: string;
 }
 
 const PERM_GROUPS = ['Events', 'Tags', 'RSVPs', 'Users'] as const;
@@ -58,9 +48,9 @@ export function PermissionModal({ open, mode, userId, roleId, onClose, onSave }:
     enabled: open && mode === 'user' && !!userId,
   });
 
-  const { data: role } = useQuery<RoleDto>({
+  const { data: role } = useQuery<Role>({
     queryKey: ['role', roleId],
-    queryFn: () => api.get<{ result: RoleDto }>(`/api/roles/${roleId}`).then(r => r.result),
+    queryFn: () => api.get<{ result: Role }>(`/api/roles/${roleId}`).then(r => r.result),
     enabled: open && mode === 'role' && !!roleId,
   });
 

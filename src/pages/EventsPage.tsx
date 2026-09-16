@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
+import { isAdmin } from '../lib/permissions';
 import { PageHeader } from '../components/PageHeader';
 import { FilterDrawer, type FilterState } from '../components/FilterDrawer';
 import { MosaicGrid } from '../components/MosaicGrid';
@@ -9,42 +10,10 @@ import { EventRow } from '../components/EventRow';
 import { SheetPager } from '../components/SheetPager';
 import { EmptyState } from '../components/EmptyState';
 import { Icon } from '../components/Icon';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  goingCount: number;
-  organizerId: string;
-  organizerName: string;
-  status: string;
-  visibility: string;
-  tags: EventTag[];
-  createdAt: string;
-}
+import type { EventListResponse, TagsResponse } from '../types';
 
 interface EventsResponse {
-  result: {
-    items: Event[];
-    total: number;
-    page: number;
-    size: number;
-    pages: number;
-  };
-}
-
-interface TagsResponse {
-  result: Array<{ id: string; name: string; color: string }>;
+  result: EventListResponse;
 }
 
 const VIEW_STORAGE_KEY = 'eventnest.kawaii.scrapbook.view';
@@ -119,7 +88,7 @@ export function EventsPage() {
   const events = eventsData?.result?.items || [];
   const total = eventsData?.result?.total ?? events.length;
   const pages = eventsData?.result?.pages ?? 1;
-  const canCreate = user?.role === 'Admin' || user?.role === 'SuperAdmin';
+  const canCreate = isAdmin(user);
 
   const activeFilters =
     (filters.tags.length > 0 ? 1 : 0) +

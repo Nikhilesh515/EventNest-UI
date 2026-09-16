@@ -2,45 +2,15 @@ import { Link } from 'react-router';
 import { MetaGrid } from './MetaGrid';
 import { normalizeTag } from '../lib/tag-style';
 import { useColorMode } from '../lib/theme-store';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface EventData {
-  id: string;
-  title: string;
-  description: string | null;
-  location: string | null;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  organizerId: string;
-  organizerName: string;
-  status: string;
-  visibility: string;
-  tags: EventTag[];
-}
+import { formatDateTimeWithWeekday } from '../lib/date';
+import type { Event } from '../types';
 
 interface PostcardProps {
-  event: EventData;
+  event: Event;
   isOwner: boolean;
   canManage: boolean;
   hasManageRsvp: boolean;
   isEnded: boolean;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
 }
 
 export function Postcard({ event, isOwner, canManage, hasManageRsvp, isEnded }: PostcardProps) {
@@ -72,8 +42,8 @@ export function Postcard({ event, isOwner, canManage, hasManageRsvp, isEnded }: 
       <div className="postcard__rule" role="presentation" />
 
       <MetaGrid items={[
-        { icon: '📅', label: 'Start', value: formatDate(event.startsAt), datetime: event.startsAt },
-        { icon: '🕐', label: 'End', value: formatDate(event.endsAt), datetime: event.endsAt },
+        { icon: '📅', label: 'Start', value: formatDateTimeWithWeekday(event.startsAt), datetime: event.startsAt },
+        { icon: '🕐', label: 'End', value: formatDateTimeWithWeekday(event.endsAt), datetime: event.endsAt },
         { icon: '📍', label: 'Location', value: event.location || 'TBD' },
         { icon: '👤', label: 'Organizer', value: event.organizerName },
         { icon: '👥', label: 'Capacity', value: String(event.capacity), className: 'tnum' },
@@ -89,7 +59,7 @@ export function Postcard({ event, isOwner, canManage, hasManageRsvp, isEnded }: 
 
       {isEnded && (
         <p className="detail-note">
-          This event has ended on {formatDate(event.endsAt)}.
+          This event has ended on {formatDateTimeWithWeekday(event.endsAt)}.
         </p>
       )}
 

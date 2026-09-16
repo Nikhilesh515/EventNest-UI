@@ -1,4 +1,6 @@
-const BASE_URL = '';
+import { tokenHolder } from "./token-holder";
+
+const BASE_URL = "";
 
 interface ApiError {
   statusCode: number;
@@ -10,19 +12,15 @@ export class ApiRequestError extends Error {
   statusCode: number;
   errors?: Record<string, string[]>;
 
-  constructor(statusCode: number, message: string, errors?: Record<string, string[]>) {
+  constructor(
+    statusCode: number,
+    message: string,
+    errors?: Record<string, string[]>,
+  ) {
     super(message);
-    this.name = 'ApiRequestError';
+    this.name = "ApiRequestError";
     this.statusCode = statusCode;
     this.errors = errors;
-  }
-}
-
-function getToken(): string | null {
-  try {
-    return localStorage.getItem('eventnest.access_token');
-  } catch {
-    return null;
   }
 }
 
@@ -33,14 +31,14 @@ export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const token = getToken();
+  const token = tokenHolder.get();
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string> || {}),
+    "Content-Type": "application/json",
+    ...((options.headers as Record<string, string>) || {}),
   };
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   let res = await fetch(`${BASE_URL}${path}`, {
@@ -59,19 +57,17 @@ export async function apiRequest<T>(
     refreshPromise = null;
 
     if (refreshed) {
-      const newToken = getToken();
+      const newToken = tokenHolder.get();
       if (newToken) {
-        headers['Authorization'] = `Bearer ${newToken}`;
+        headers["Authorization"] = `Bearer ${newToken}`;
         res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
       }
     }
 
     if (!refreshed || res.status === 401) {
-      localStorage.removeItem('eventnest.access_token');
-      localStorage.removeItem('eventnest.refresh_token');
-      localStorage.removeItem('eventnest.user');
-      window.location.href = '/login';
-      throw new ApiRequestError(401, 'Session expired');
+      tokenHolder.set(null);
+      tokenHolder.notifyExpired();
+      throw new ApiRequestError(401, "Session expired");
     }
   }
 
@@ -93,21 +89,17 @@ export async function apiRequest<T>(
 }
 
 async function attemptRefresh(): Promise<boolean> {
-  const refresh = localStorage.getItem('eventnest.refresh_token');
-  if (!refresh) return false;
-
   try {
     const res = await fetch(`${BASE_URL}/api/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken: refresh }),
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
     });
 
     if (!res.ok) return false;
 
-    const data = (await res.json()) as { result: { accessToken: string; refreshToken: string } };
-    localStorage.setItem('eventnest.access_token', data.result.accessToken);
-    localStorage.setItem('eventnest.refresh_token', data.result.refreshToken);
+    const data = (await res.json()) as { result: { accessToken: string } };
+    tokenHolder.set(data.result.accessToken);
     return true;
   } catch {
     return false;
@@ -116,16 +108,15 @@ async function attemptRefresh(): Promise<boolean> {
 
 export const api = {
   get: <T>(path: string) => apiRequest<T>(path),
-  
+
   post: <T>(path: string, body: unknown) =>
-    apiRequest<T>(path, { method: 'POST', body: JSON.stringify(body) }),
-  
+    apiRequest<T>(path, { method: "POST", body: JSON.stringify(body) }),
+
   put: <T>(path: string, body: unknown) =>
-    apiRequest<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
-  
+    apiRequest<T>(path, { method: "PUT", body: JSON.stringify(body) }),
+
   patch: <T>(path: string, body: unknown) =>
-    apiRequest<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
-  
-  delete: <T>(path: string) =>
-    apiRequest<T>(path, { method: 'DELETE' }),
+    apiRequest<T>(path, { method: "PATCH", body: JSON.stringify(body) }),
+
+  delete: <T>(path: string) => apiRequest<T>(path, { method: "DELETE" }),
 };

@@ -6,33 +6,14 @@ import { AttendeeTable } from '../components/AttendeeTable';
 import { normalizeTag } from '../lib/tag-style';
 import { useColorMode } from '../lib/theme-store';
 import { useState } from 'react';
-
-interface EventData {
-  id: string;
-  title: string;
-  capacity: number;
-  organizerId: string;
-  organizerName: string;
-  tags?: { id: string; name: string; color: string }[];
-}
-
-interface RsvpData {
-  id: string;
-  eventId: string;
-  userId: string;
-  userName: string;
-  status: string;
-  guestCount: number;
-  notes: string | null;
-  respondedAt: string;
-}
+import type { Event, Rsvp } from '../types';
 
 interface EventResponse {
-  result: EventData;
+  result: Event;
 }
 
 interface RsvpsResponse {
-  result: RsvpData[];
+  result: Rsvp[];
 }
 
 type FilterKey = 'all' | 'going' | 'maybe' | 'notgoing' | 'cancelled';

@@ -1,49 +1,14 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import toast from 'react-hot-toast';
+import { api, ApiRequestError } from '../lib/api';
+import { getRoleBadgeClass } from '../lib/roles';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { SheetPager } from '../components/SheetPager';
 import { PermissionModal } from '../components/PermissionModal';
 import { useDebounce } from '../hooks/use-debounce';
-
-function getRoleBadgeClass(roleName: string): string {
-  switch (roleName.toLowerCase()) {
-    case 'superadmin': return 'badge--superadmin';
-    case 'admin': return 'badge--admin';
-    case 'moderator': return 'badge--moderator';
-    case 'organizer': return 'badge--organizer';
-    default: return 'badge--user';
-  }
-}
-
-interface UserDto {
-  id: string;
-  email: string;
-  displayName: string;
-  roleId: string;
-  roleName: string;
-  isActive: boolean;
-}
-
-interface RoleDto {
-  id: string;
-  name: string;
-  displayName: string;
-  description: string | null;
-  sortOrder: number;
-  permissionNames: string[];
-  userCount: number;
-  createdAt: string;
-}
-
-interface PaginatedUsers {
-  items: UserDto[];
-  total: number;
-  page: number;
-  pageSize: number;
-  pages: number;
-}
+import type { PaginatedUsers, Role, UserDto } from '../types';
 
 export function AdminUsersPage() {
   const queryClient = useQueryClient();
@@ -66,9 +31,9 @@ export function AdminUsersPage() {
   const [editDisplayName, setEditDisplayName] = useState('');
   const [editRoleId, setEditRoleId] = useState('');
 
-  const { data: roles } = useQuery<RoleDto[]>({
+  const { data: roles } = useQuery<Role[]>({
     queryKey: ['roles'],
-    queryFn: () => api.get<{ result: RoleDto[] }>('/api/roles').then(r => r.result),
+    queryFn: () => api.get<{ result: Role[] }>('/api/roles').then(r => r.result),
   });
 
   const { data: users, isLoading } = useQuery<PaginatedUsers>({
@@ -87,9 +52,13 @@ export function AdminUsersPage() {
     mutationFn: (data: { email: string; displayName: string; password: string; roleId: string }) =>
       api.post('/api/users', data),
     onSuccess: () => {
+      toast.success('User created successfully');
       queryClient.invalidateQueries({ queryKey: ['users'] });
       resetCreateForm();
       setShowCreate(false);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to create user');
     },
   });
 
@@ -97,8 +66,12 @@ export function AdminUsersPage() {
     mutationFn: ({ id, displayName }: { id: string; displayName: string }) =>
       api.put(`/api/users/${id}`, { displayName }),
     onSuccess: () => {
+      toast.success('User updated successfully');
       queryClient.invalidateQueries({ queryKey: ['users'] });
       setEditUser(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update user');
     },
   });
 
@@ -106,16 +79,24 @@ export function AdminUsersPage() {
     mutationFn: ({ id, roleId }: { id: string; roleId: string }) =>
       api.put(`/api/users/${id}/role`, { roleId }),
     onSuccess: () => {
+      toast.success('User role updated successfully');
       queryClient.invalidateQueries({ queryKey: ['users'] });
       setEditUser(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update user role');
     },
   });
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => api.delete(`/api/users/${id}`),
     onSuccess: () => {
+      toast.success('User deleted');
       queryClient.invalidateQueries({ queryKey: ['users'] });
       setDeleteUser(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to delete user');
     },
   });
 

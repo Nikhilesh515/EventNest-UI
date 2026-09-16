@@ -1036,28 +1036,30 @@ html { scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
    17. COMPONENT — TOAST
    ========================================================================== */
 .toast-region {
-  position: fixed; z-index: var(--z-toast);
-  right: var(--space-4); bottom: var(--space-4);
-  display: grid; gap: var(--space-3); max-inline-size: 360px;
+  z-index: var(--z-toast);
 }
-.toast {
-  position: relative;
-  padding: var(--space-4) var(--space-8) var(--space-4) var(--space-5);
+.toast-region .toast {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
   background: var(--yamabuki-100); border: var(--border-w) solid var(--yamabuki-300);
   border-radius: var(--radius-md); box-shadow: var(--shadow-lift);
-  font-size: var(--type-body-s); color: var(--text-primary);
-  animation: toast-in var(--dur-medium) var(--ease-press);
+  font-size: var(--type-body-s); color: var(--text-primary); line-height: 1.4;
+  pointer-events: auto; max-inline-size: 360px;
 }
-.toast--success { background: var(--wakatake-100); border-color: var(--wakatake-300); }
-.toast--error   { background: var(--shu-100);      border-color: var(--shu-300); }
-.toast--info    { background: var(--sora-100);     border-color: var(--sora-300); }
-[data-theme="dark"] .toast { background: var(--surface-raised); border-color: var(--border-strong); }
-.toast.is-leaving { animation: toast-out 200ms var(--ease-snap) forwards; }
-.toast__title { font-family: var(--font-round); font-weight: 700; display: flex; align-items: center; gap: var(--space-2); }
-.toast__body { margin-top: 2px; color: var(--text-secondary); }
-.toast__close { position: absolute; top: 6px; right: 6px; }
+.toast-region .toast--success { background: var(--wakatake-100); border-color: var(--wakatake-300); }
+.toast-region .toast--error   { background: var(--shu-100);      border-color: var(--shu-300); }
+.toast-region .toast--info    { background: var(--sora-100);     border-color: var(--sora-300); }
+.toast-region .toast__message { flex: 1 1 auto; }
+.toast-region .toast__close {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 2px; border: none; border-radius: 50%; cursor: pointer;
+  background: none; color: var(--text-secondary);
+}
+.toast-region .toast__close:hover { color: var(--text-primary); background: rgba(0, 0, 0, .06); }
+[data-theme="dark"] .toast-region .toast { background: var(--surface-raised); border-color: var(--border-strong); }
+[data-theme="dark"] .toast-region .toast__close:hover { background: rgba(255, 255, 255, .08); }
 @media (max-width: 1023.98px) {
-  .toast-region { left: var(--space-4); right: var(--space-4); bottom: calc(var(--tabbar-h) + var(--space-4) + env(safe-area-inset-bottom, 0px)); max-inline-size: none; }
+  .toast-region .toast { max-inline-size: calc(100vw - 2rem); }
 }
 
 /* ==========================================================================
@@ -1086,10 +1088,35 @@ html { scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
 .error-state__meta { font-size: var(--type-caption); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 .error-state__mascot { inline-size: var(--mascot-sm); color: var(--mascot-ink); }
 .error-state .cluster { justify-content: center; }
+.error-fallback {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: var(--space-6);
+  background: var(--surface-sunken);
+}
+.error-fallback__content {
+  position: relative; overflow: hidden; text-align: center; max-inline-size: 420px;
+  background: var(--surface-paper); border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lift);
+  padding: var(--space-8) var(--space-6);
+}
+.error-fallback__kanji {
+  position: absolute; inset-block-start: -0.2em; inset-inline-end: 0.1em;
+  font-size: 6rem; line-height: 1; pointer-events: none;
+}
+.error-fallback__title {
+  position: relative; font-family: var(--font-round); font-weight: 700;
+  font-size: var(--type-h2); margin-bottom: var(--space-3); color: var(--text-primary);
+}
+.error-fallback__message {
+  position: relative; font-size: var(--type-body-s); color: var(--text-secondary);
+  margin-bottom: var(--space-5);
+}
+.error-fallback .btn { position: relative; }
 .koi-loader { display: grid; justify-items: center; gap: var(--space-3); padding: var(--space-8) 0; color: var(--mascot-ink); }
 .koi-loader__svg { inline-size: 96px; block-size: 96px; }
 .koi-loader--lg .koi-loader__svg { inline-size: 160px; block-size: 160px; }
 .koi-loader__text { font-size: var(--type-body-s); color: var(--text-secondary); }
+.boot-gate { display: grid; place-items: center; min-block-size: 40vh; color: var(--text-secondary); }
 
 /* ==========================================================================
    19. COMPONENT — STAT CARDS
@@ -1123,11 +1150,13 @@ html { scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
   text-align: left; padding: var(--space-3) var(--space-4);
   border-bottom: 2px dashed var(--border-dashed); white-space: nowrap;
 }
-.table-punch tbody tr { position: relative; }
-.table-punch tbody tr::before {
-  content: ""; position: absolute; left: 14px; top: 50%; translate: 0 -50%;
-  inline-size: 10px; block-size: 10px; border-radius: 50%;
-  background: var(--surface-page); border: 1.5px solid var(--border-soft);
+.table-punch tbody td:first-child { position: relative; }
+@media (min-width: 640px) {
+  .table-punch tbody td:first-child::before {
+    content: ""; position: absolute; left: 14px; top: 50%; translate: 0 -50%;
+    inline-size: 10px; block-size: 10px; border-radius: 50%;
+    background: var(--surface-page); border: 1.5px solid var(--border-soft);
+  }
 }
 .table-punch tbody tr:nth-child(odd) { background: var(--surface-paper); }
 .table-punch tbody tr:nth-child(even) { background: var(--surface-tint-rose); }
@@ -1562,12 +1591,6 @@ html { scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
   100% { transform: rotate(360deg) translateY(0); }
 }
 @keyframes skeleton-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-@keyframes toast-in {
-  0%   { transform: translateY(12px) rotate(-3deg); opacity: 0; }
-  70%  { transform: translateY(-2px) rotate(-1deg); opacity: 1; }
-  100% { transform: translateY(0) rotate(-1.2deg); opacity: 1; }
-}
-@keyframes toast-out { to { transform: translateY(8px) rotate(2deg); opacity: 0; } }
 @keyframes modal-in {
   0%   { transform: translateY(14px) scale(.97); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
@@ -1980,7 +2003,6 @@ html { scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
   .table-punch thead { display: none; }
   .table-punch, .table-punch tbody, .table-punch tr, .table-punch td { display: block; width: 100%; }
   .table-punch tr { border: var(--border-w) solid var(--border-soft); border-radius: var(--radius-md); margin-bottom: var(--space-3); padding: var(--space-2); background: var(--surface-paper) !important; }
-  .table-punch tr::before { display: none; }
   .table-punch td { border: 0; padding: var(--space-1) var(--space-2); display: grid; grid-template-columns: 40% 1fr; gap: var(--space-2); }
   .table-punch td::before { content: attr(data-label); font-weight: 700; color: var(--text-secondary); font-size: var(--type-overline); text-transform: uppercase; }
   .table-punch td:first-child { padding-inline-start: var(--space-2); }

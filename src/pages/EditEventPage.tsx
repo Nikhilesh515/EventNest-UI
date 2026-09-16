@@ -1,50 +1,18 @@
 import { useParams, useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api';
+import toast from 'react-hot-toast';
+import { api, ApiRequestError } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
+import { isModerator } from '../lib/permissions';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { EventForm, type EventFormMode } from '../components/EventForm';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { Icon } from '../components/Icon';
 import { useState } from 'react';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface EventData {
-  id: string;
-  title: string;
-  description: string | null;
-  location: string | null;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  visibility: string;
-  tags: EventTag[];
-  status: string;
-  organizerId: string;
-}
+import type { Event, EventFormValues, TagsResponse } from '../types';
 
 interface EventResponse {
-  result: EventData;
-}
-
-interface TagsResponse {
-  result: EventTag[];
-}
-
-interface EventFormValues {
-  title: string;
-  description: string;
-  location: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  visibility: 'Public' | 'Private';
-  tagIds: string[];
+  result: Event;
 }
 
 export function EditEventPage() {
@@ -53,7 +21,7 @@ export function EditEventPage() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
-  const canCreateTag = ['Admin', 'SuperAdmin', 'Moderator'].includes(user?.role || '');
+  const canCreateTag = isModerator(user);
 
   const { data: eventData, isLoading } = useQuery({
     queryKey: ['event', id],
@@ -74,23 +42,38 @@ export function EditEventPage() {
       }
     },
     onSuccess: () => {
+      toast.success('Event updated successfully');
       queryClient.invalidateQueries({ queryKey: ['event', id] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
       navigate(`/events/${id}`);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update event');
     },
   });
 
   const statusMutation = useMutation({
     mutationFn: (action: string) => api.put(`/api/events/${id}/${action}`, {}),
     onSuccess: () => {
+      toast.success('Event status updated');
       queryClient.invalidateQueries({ queryKey: ['event', id] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
       setConfirmAction(null);
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to update event status');
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => api.delete(`/api/events/${id}`),
-    onSuccess: () => navigate('/my-events'),
+    onSuccess: () => {
+      toast.success('Event deleted');
+      navigate('/my-events');
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to delete event');
+    },
   });
 
   const event = eventData?.result;
@@ -143,7 +126,7 @@ export function EditEventPage() {
             startsAt: event.startsAt,
             endsAt: event.endsAt,
             capacity: event.capacity,
-            visibility: event.visibility as 'Public' | 'Private',
+            visibility: event.visibility,
             tagIds: event.tags.map((t) => t.id),
           }}
           availableTags={tagsData?.result || []}

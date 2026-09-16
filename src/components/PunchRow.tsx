@@ -2,45 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { Icon } from './Icon';
 import { StatusBadge, VisBadge } from './Badges';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface EventData {
-  id: string;
-  title: string;
-  location: string | null;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  goingCount: number;
-  maybeCount: number;
-  status: string;
-  visibility: string;
-  tags: EventTag[];
-}
+import { formatDateFlag, formatTime } from '../lib/date';
+import type { Event } from '../types';
 
 interface PunchRowProps {
-  event: EventData;
+  event: Event;
   onPublish?: (id: string) => void;
   onCancel?: (id: string) => void;
   onComplete?: (id: string) => void;
   onDelete?: (id: string) => void;
   loading?: boolean;
-}
-
-const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-
-function formatDateFlag(iso: string): string {
-  const d = new Date(iso);
-  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
-}
-
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
 export function PunchRow({ event, onPublish, onCancel, onComplete, onDelete, loading }: PunchRowProps) {
@@ -70,7 +41,7 @@ export function PunchRow({ event, onPublish, onCancel, onComplete, onDelete, loa
     <article className={`punch-row${event.status === 'Cancelled' ? ' is-cancelled' : ''}${event.status === 'Draft' ? ' is-draft' : ''}`}>
       <div className="punch-row__head">
         <div className="punch-row__date">
-          <span>{formatDateFlag(event.startsAt)}</span>
+          <span>{formatDateFlag(event.startsAt).md}</span>
         </div>
         <div className="punch-row__body">
           <h2 className="punch-row__title">

@@ -1,21 +1,9 @@
 import { Link } from 'react-router';
-
-export type RsvpStatus = 'Confirmed' | 'Maybe' | 'Declined' | 'Cancelled';
-
-interface RsvpData {
-  id: string;
-  eventId: string;
-  eventTitle: string | null;
-  eventStartsAt: string | null;
-  eventLocation: string | null;
-  status: RsvpStatus;
-  guestCount: number;
-  notes: string | null;
-  respondedAt: string;
-}
+import { formatShortDate, formatTime } from '../lib/date';
+import type { RsvpDetail, RsvpStatus } from '../types';
 
 interface StampEntryProps {
-  rsvp: RsvpData;
+  rsvp: RsvpDetail;
   isPast?: boolean;
   onChangeStatus?: (rsvpId: string, newStatus: RsvpStatus) => void;
   onCancel?: (eventId: string) => void;
@@ -27,20 +15,6 @@ const STAMP_MAP: Record<RsvpStatus, { glyph: string; label: string; cssClass: st
   Declined: { glyph: '⊘', label: 'Not Going', cssClass: 'log-stamp--notgoing' },
   Cancelled: { glyph: '✕', label: 'Cancelled', cssClass: 'log-stamp--cancelled' },
 };
-
-function formatShortDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  const h = d.getHours();
-  const m = d.getMinutes();
-  const ap = h >= 12 ? 'PM' : 'AM';
-  const h12 = h % 12 || 12;
-  return `${h12}:${m.toString().padStart(2, '0')} ${ap}`;
-}
 
 export function StampEntry({ rsvp, isPast = false, onChangeStatus, onCancel }: StampEntryProps) {
   const stamp = STAMP_MAP[rsvp.status];

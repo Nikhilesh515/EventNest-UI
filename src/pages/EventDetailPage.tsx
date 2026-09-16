@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { api, ApiRequestError } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
 import { Breadcrumbs } from '../components/Breadcrumbs';
@@ -9,49 +10,19 @@ import { ReplyCard } from '../components/ReplyCard';
 import { PostcardSpread } from '../components/PostcardSpread';
 import { tagStyleVars } from '../lib/tag-style';
 import { useColorMode } from '../lib/theme-store';
-import type { RsvpStatus } from '../components/RsvpStickerSheet';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface EventData {
-  id: string;
-  title: string;
-  description: string | null;
-  location: string | null;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  goingCount: number;
-  organizerId: string;
-  organizerName: string;
-  status: string;
-  visibility: string;
-  tags: EventTag[];
-}
-
-interface RsvpData {
-  id: string;
-  eventId: string;
-  userId: string;
-  status: string;
-  guestCount: number;
-  notes: string | null;
-}
+import type { RsvpStatus as RsvpChoice } from '../components/RsvpStickerSheet';
+import type { Event, Rsvp } from '../types';
 
 interface EventResponse {
-  result: EventData;
+  result: Event;
 }
 
 interface RsvpsResponse {
-  result: RsvpData[];
+  result: Rsvp[];
 }
 
-function rsvpKeyFromStatus(statusKey: string): RsvpStatus | null {
-  const map: Record<string, RsvpStatus> = {
+function rsvpKeyFromStatus(statusKey: string): RsvpChoice | null {
+  const map: Record<string, RsvpChoice> = {
     Confirmed: 'going',
     Maybe: 'maybe',
     Declined: 'notgoing',
@@ -73,7 +44,7 @@ export function EventDetailPage() {
   const mode = useColorMode();
   const { user } = useAuthStore();
 
-  const [selectedStatus, setSelectedStatus] = useState<RsvpStatus | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<RsvpChoice | null>(null);
   const [guests, setGuests] = useState(1);
   const [notes, setNotes] = useState('');
 
@@ -120,7 +91,7 @@ export function EventDetailPage() {
         await api.put(`/api/rsvps/${myRsvp.id}`, payload);
         return;
       }
-      const created = await api.post<{ result: RsvpData }>(`/api/events/${id}/rsvps`, {
+      const created = await api.post<{ result: Rsvp }>(`/api/events/${id}/rsvps`, {
         guestCount: guests,
         notes: notes || null,
       });
@@ -129,21 +100,29 @@ export function EventDetailPage() {
       }
     },
     onSuccess: () => {
+      toast.success('RSVP submitted');
       queryClient.invalidateQueries({ queryKey: ['event', id] });
       queryClient.invalidateQueries({ queryKey: ['rsvps', 'user', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to submit RSVP');
     },
   });
 
   const cancelMutation = useMutation({
     mutationFn: () => api.delete(`/api/events/${id}/rsvps`),
     onSuccess: () => {
+      toast.success('RSVP cancelled');
       setSelectedStatus(null);
       setGuests(1);
       setNotes('');
       queryClient.invalidateQueries({ queryKey: ['event', id] });
       queryClient.invalidateQueries({ queryKey: ['rsvps', 'user', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+    onError: (error: ApiRequestError) => {
+      toast.error(error.message || 'Failed to cancel RSVP');
     },
   });
 

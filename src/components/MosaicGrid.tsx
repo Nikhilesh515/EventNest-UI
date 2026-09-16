@@ -1,29 +1,7 @@
 import { composeMosaic } from '../lib/mosaic';
 import { PolaroidTile } from './PolaroidTile';
 import { FillerTile } from './FillerTile';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  goingCount: number;
-  organizerId: string;
-  organizerName: string;
-  status: string;
-  visibility: string;
-  tags: EventTag[];
-  createdAt: string;
-}
+import type { Event } from '../types';
 
 interface MosaicGridProps {
   events: Event[];

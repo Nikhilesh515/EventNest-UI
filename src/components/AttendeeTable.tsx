@@ -1,16 +1,8 @@
-interface RsvpData {
-  id: string;
-  eventId: string;
-  userId: string;
-  userName: string;
-  status: string;
-  guestCount: number;
-  notes: string | null;
-  respondedAt: string;
-}
+import { formatDate } from '../lib/date';
+import type { Rsvp } from '../types';
 
 interface AttendeeTableProps {
-  attendees: RsvpData[];
+  attendees: Rsvp[];
   filter: string;
 }
 
@@ -20,10 +12,6 @@ const STATUS_MAP: Record<string, { label: string; cssClass: string }> = {
   Declined: { label: 'Not Going', cssClass: 'rsvp-chip--notgoing' },
   Cancelled: { label: 'Cancelled', cssClass: 'rsvp-chip--cancelled' },
 };
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
 
 function getInitials(name: string): string {
   return name

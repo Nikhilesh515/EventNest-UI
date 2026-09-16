@@ -4,64 +4,11 @@ import { tilePatternClass, washiVariant } from '../lib/mosaic';
 import type { ColorMode } from '../lib/tag-style';
 import { normalizeTag } from '../lib/tag-style';
 import { useColorMode } from '../lib/theme-store';
+import { formatDateFlag, formatShortDate, formatTimeRange } from '../lib/date';
+import type { Event } from '../types';
 import { Icon } from './Icon';
 import { TagChipList } from './TagChip';
 import { StatusBadge, VisBadge } from './Badges';
-
-interface EventTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  goingCount: number;
-  organizerId: string;
-  organizerName: string;
-  status: string;
-  visibility: string;
-  tags: EventTag[];
-  createdAt: string;
-}
-
-const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-const DOW = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
-function dateFlag(iso: string) {
-  const d = new Date(iso);
-  return {
-    md: `${MONTHS[d.getMonth()]} ${d.getDate()}`,
-    dow: DOW[d.getDay()],
-  };
-}
-
-function fmtDateShort(iso: string) {
-  const d = new Date(iso);
-  return `${MONTHS[d.getMonth()]?.charAt(0)}${MONTHS[d.getMonth()]?.slice(1, 3).toLowerCase()} ${d.getDate()}`;
-}
-
-function fmtTimeRangeSameDay(start: string, end: string) {
-  const a = new Date(start);
-  const b = new Date(end);
-  const fmt = (d: Date) => {
-    const h = d.getHours();
-    const m = d.getMinutes();
-    const ap = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 || 12;
-    return `${h12}:${m.toString().padStart(2, '0')} ${ap}`;
-  };
-  if (a.toDateString() === b.toDateString()) {
-    return `${fmt(a)}–${fmt(b)}`;
-  }
-  return `${fmt(a)} – ${fmt(b)}`;
-}
 
 function tileTint(event: Event, mode: ColorMode) {
   return normalizeTag(event.tags?.[0]?.color, mode).fill;
@@ -82,7 +29,7 @@ interface PolaroidTileProps {
 
 export function PolaroidTile({ event, slot, taped = false }: PolaroidTileProps) {
   const mode = useColorMode();
-  const flag = dateFlag(event.startsAt);
+  const flag = formatDateFlag(event.startsAt);
   const kind = slot.kind;
   const full = event.capacity > 0 && event.goingCount >= event.capacity;
   // eslint-disable-next-line react-hooks/purity -- render-time clock read drives the tile--past class
@@ -136,18 +83,18 @@ export function PolaroidTile({ event, slot, taped = false }: PolaroidTileProps) 
             {kind === 'wide' ? (
               <div className="tile__meta-row">
                 <Icon name="clock" size={14} />
-                <span>{fmtTimeRangeSameDay(event.startsAt, event.endsAt)} · {event.location}</span>
+                <span>{formatTimeRange(event.startsAt, event.endsAt)} · {event.location}</span>
               </div>
             ) : kind === 'portrait' ? (
               <div className="tile__meta-row">
                 <Icon name="clock" size={14} />
-                <span>{fmtTimeRangeSameDay(event.startsAt, event.endsAt)} · {event.location}</span>
+                <span>{formatTimeRange(event.startsAt, event.endsAt)} · {event.location}</span>
               </div>
             ) : (
               <>
                 <div className="tile__meta-row">
                   <Icon name="calendar" size={14} />
-                  <span>{fmtDateShort(event.startsAt)} · {fmtTimeRangeSameDay(event.startsAt, event.endsAt)}</span>
+                  <span>{formatShortDate(event.startsAt)} · {formatTimeRange(event.startsAt, event.endsAt)}</span>
                 </div>
                 <div className="tile__meta-row">
                   <Icon name="pin" size={14} />
