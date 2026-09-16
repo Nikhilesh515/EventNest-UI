@@ -32,6 +32,7 @@ export type IconName =
   | 'refresh'
   | 'menu'
   | 'moon-lantern'
+  | 'gear'
 
 export interface BreadcrumbItem {
   label: string

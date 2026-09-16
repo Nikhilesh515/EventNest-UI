@@ -80,3 +80,11 @@ export const ROLE_DEFAULTS: Record<UserRole, string[]> = {
   Admin: [],
   SuperAdmin: [],
 }
+
+export const BUILT_IN_ROLE_NAMES = ['User', 'Organizer', 'Moderator', 'Admin', 'SuperAdmin']
+
+export const ADMIN_ROLES: UserRole[] = ['Admin', 'SuperAdmin']
+
+export const isAdminRole = (role?: UserRole): boolean => !!role && ADMIN_ROLES.includes(role)
+
+export const isBuiltInRole = (roleName: string): boolean => BUILT_IN_ROLE_NAMES.includes(roleName)

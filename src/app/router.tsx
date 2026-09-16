@@ -6,8 +6,9 @@ import { RouteErrorBoundary } from '@/app/layout/RouteErrorBoundary'
 import { RequireAuth } from '@/app/guards/RequireAuth'
 import { RequireAnonymous } from '@/app/guards/RequireAnonymous'
 import { RequirePermission } from '@/app/guards/RequirePermission'
+import { RequireRole } from '@/app/guards/RequireRole'
 import { KoiLoader } from '@/components/states/KoiLoader'
-import { EventNestPermissions } from '@/lib/permissions'
+import { ADMIN_ROLES, EventNestPermissions } from '@/lib/permissions'
 import { env } from '@/lib/env'
 
 const EventsPage = lazy(() => import('@/pages/EventsPage'))
@@ -21,6 +22,7 @@ const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
 const TagAdminPage = lazy(() => import('@/pages/TagAdminPage'))
 const UserAdminPage = lazy(() => import('@/pages/UserAdminPage'))
 const UserPermissionsPage = lazy(() => import('@/pages/UserPermissionsPage'))
+const RoleAdminPage = lazy(() => import('@/pages/RoleAdminPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const StyleguidePage = lazy(() => import('@/pages/StyleguidePage'))
@@ -83,7 +85,7 @@ export const router = createBrowserRouter([
         path: 'admin/users',
         element: (
           <RequirePermission permission={EventNestPermissions.Users.View}>
-            {suspense(<UserAdminPage />)}
+            <RequireRole roles={ADMIN_ROLES}>{suspense(<UserAdminPage />)}</RequireRole>
           </RequirePermission>
         ),
       },
@@ -91,7 +93,15 @@ export const router = createBrowserRouter([
         path: 'admin/users/:id/permissions',
         element: (
           <RequirePermission permission={EventNestPermissions.Users.Manage}>
-            {suspense(<UserPermissionsPage />)}
+            <RequireRole roles={ADMIN_ROLES}>{suspense(<UserPermissionsPage />)}</RequireRole>
+          </RequirePermission>
+        ),
+      },
+      {
+        path: 'admin/roles',
+        element: (
+          <RequirePermission permission={EventNestPermissions.Users.View}>
+            <RequireRole roles={ADMIN_ROLES}>{suspense(<RoleAdminPage />)}</RequireRole>
           </RequirePermission>
         ),
       },

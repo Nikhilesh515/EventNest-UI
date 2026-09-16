@@ -87,7 +87,7 @@ for (const viewport of VIEWPORTS) {
       await expect(page.locator('.swatch-grid')).toHaveCount(10)
       await expect(page.locator('.swatch')).toHaveCount(91)
       await expect(page.locator('.type-sample')).toHaveCount(17)
-      await expect(page.locator('.icon-grid .icon-cell')).toHaveCount(25)
+      await expect(page.locator('.icon-grid .icon-cell')).toHaveCount(26)
       await expect(page.locator('.mascot-row .mascot-cell')).toHaveCount(4)
       await expect(page.locator('.size-pair')).toHaveCount(4)
       await expect(page.locator('.pattern-demo .pattern-swatch')).toHaveCount(6)
@@ -181,3 +181,4 @@ test('motion replay re-triggers the sticker press', async ({ page }) => {
   await page.locator('#sg-motion .btn', { hasText: 'Replay sticker press' }).click()
   await expect(page.locator('#sg-motion .rsvp-sticker--going')).toHaveClass(/is-pressing/)
 })
+

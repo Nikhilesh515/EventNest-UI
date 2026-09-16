@@ -381,3 +381,34 @@
   .colophon { padding-block-end: calc(var(--tabbar-h) + var(--space-6) + env(safe-area-inset-bottom, 0px)); }
 }
 
+
+/* ==========================================================================
+   System index group (M0016)
+   ========================================================================== */
+.index-group { display: grid; gap: var(--rail-gap); }
+.index-tab--group {
+  inline-size: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
+}
+.index-tab--group:hover { background: var(--surface-paper); }
+.index-tab--group-active {
+  background: var(--surface-paper);
+  box-shadow: inset 0 3px 0 var(--accent-primary), var(--shadow-sticker);
+}
+.index-tab__chev { display: none; color: var(--text-tertiary); }
+.index-group__list {
+  display: grid;
+  gap: 2px;
+  margin-block-start: 2px;
+  padding-inline-start: var(--space-3);
+  border-inline-start: 2px dashed var(--border-dashed);
+}
+@media (min-width: 1280px) {
+  .index-tab--group { grid-template-columns: 26px 20px 1fr 16px; }
+  .index-tab--child { grid-template-columns: 20px 1fr; min-block-size: 36px; }
+  .index-tab__chev { display: block; }
+}

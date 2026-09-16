@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 
 import { useAuth } from '@/features/auth/AuthContext'
-import { EventNestPermissions } from '@/lib/permissions'
+import { env } from '@/lib/env'
+import { EventNestPermissions, isAdminRole } from '@/lib/permissions'
 
 interface ColophonProps {
   stamp: string
@@ -10,12 +11,13 @@ interface ColophonProps {
 export function Colophon({ stamp }: ColophonProps) {
   const { status, user, hasPermission } = useAuth()
   const authed = status === 'authenticated'
+  const isAdmin = isAdminRole(user?.role)
 
   return (
     <footer className="colophon">
       <div className="colophon__row">
         <span className="colophon__mark" aria-hidden="true">
-          EventNest 祭
+          EventNest ·
         </span>
         <span className="colophon__stamp tnum">{stamp || 'page · EventNest'}</span>
       </div>
@@ -24,10 +26,16 @@ export function Colophon({ stamp }: ColophonProps) {
           <Link to="/events">Events</Link>
           {authed ? <Link to="/my-rsvps">My RSVPs</Link> : null}
           {authed && user?.role !== 'User' ? <Link to="/my-events">My Events</Link> : null}
-          {hasPermission(EventNestPermissions.Users.Manage) ? (
-            <Link to="/admin/users">Permissions</Link>
+          {isAdmin ? (
+            <>
+              <Link to="/admin/users">Users</Link>
+              <Link to="/admin/roles">Roles</Link>
+            </>
           ) : null}
-          <Link to="/styleguide">Styleguide</Link>
+          {hasPermission(EventNestPermissions.Tags.View) ? (
+            <Link to="/admin/tags">Tags</Link>
+          ) : null}
+          {env.enableStyleguide ? <Link to="/styleguide">Styleguide</Link> : null}
         </nav>
         <span>A paper-craft festival, built by hand.</span>
       </div>

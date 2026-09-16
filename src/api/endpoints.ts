@@ -19,6 +19,12 @@ export const PERMISSIONS = {
   check: '/api/permissions/check',
 } as const
 
+export const ROLES = {
+  list: '/api/roles',
+  create: '/api/roles',
+  byId: (id: string) => `/api/roles/${id}`,
+} as const
+
 export const TAGS = {
   list: '/api/tags',
   create: '/api/tags',

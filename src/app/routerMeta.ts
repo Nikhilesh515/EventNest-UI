@@ -77,6 +77,14 @@ const EXACT: Record<string, RouteMeta> = {
     stamp: 'page 06 · Users',
     liveMessage: 'Users',
   },
+  '/admin/roles': {
+    template: 'ledger',
+    density: 'admin',
+    width: '1120px',
+    title: 'Roles',
+    stamp: 'page 06 · Roles',
+    liveMessage: 'Roles',
+  },
   '/login': {
     template: 'cover',
     density: 'festival',

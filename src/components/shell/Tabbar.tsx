@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 import { Icon } from '@/components/icons/Icon'
 import { useAuth } from '@/features/auth/AuthContext'
-import { EventNestPermissions } from '@/lib/permissions'
+import { EventNestPermissions, isAdminRole } from '@/lib/permissions'
 import type { IconName } from '@/types'
 
 interface TabbarProps {
@@ -53,6 +53,14 @@ export function Tabbar({ onOpenIndex }: TabbarProps) {
         label: 'Create',
         href: '/events/create',
         match: (p) => /^\/events\/(create|[^/]+\/edit)/.test(p),
+      })
+    }
+    if (isAdminRole(user?.role) || hasPermission(EventNestPermissions.Tags.View)) {
+      tabs.push({
+        icon: 'gear',
+        label: 'System',
+        href: isAdminRole(user?.role) ? '/admin/users' : '/admin/tags',
+        match: (p) => p.startsWith('/admin'),
       })
     }
   }

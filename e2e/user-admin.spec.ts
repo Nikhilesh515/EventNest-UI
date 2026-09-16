@@ -7,7 +7,7 @@ const admin = {
   id: ADMIN_ID,
   email: 'admin@eventnest.io',
   displayName: 'Ava Sinclair',
-  role: 'Admin',
+  roleName: 'Admin',
   isActive: true,
 }
 
@@ -204,3 +204,4 @@ test('empty directory shows the empty state', async ({ page }) => {
   await expect(page.locator('.empty__title')).toHaveText('No users found.')
   await expect(page.locator('table.table-punch')).toHaveCount(0)
 })
+

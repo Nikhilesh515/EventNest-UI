@@ -8,7 +8,7 @@ const actor = {
   id: ACTOR_ID,
   email: 'admin@eventnest.io',
   displayName: 'Ava Sinclair',
-  role: 'Admin',
+  roleName: 'Admin',
   isActive: true,
 }
 
@@ -75,7 +75,10 @@ async function stubApi(page: Page, opts: { permissions?: unknown[] } = {}) {
   await page.route('**/api/permissions/grant', (route) => route.fulfill(envelope({}, 201)))
   await page.route('**/api/permissions/revoke', (route) => route.fulfill(envelope(null)))
   await page.route('**/api/permissions', (route) => route.fulfill(envelope(catalog)))
-  await page.route('**/api/users/**', (route) => route.fulfill(envelope(target)))
+  await page.route('**/api/users/**', (route) => {
+    if (route.request().url().endsWith('/api/users/me')) return route.fallback()
+    return route.fulfill(envelope(target))
+  })
   void opts
 }
 
@@ -230,3 +233,4 @@ test('grant opens the inline confirm with an expiry field', async ({ page }) => 
     posts.some((entry) => entry.includes('/api/permissions/grant') && entry.includes('2026-12-31')),
   ).toBe(true)
 })
+

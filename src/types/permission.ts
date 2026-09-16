@@ -13,9 +13,21 @@ export interface EffectivePermission {
   key: string
   roleHas: boolean
   effective: boolean
-  source: 'role default' | 'direct grant' | 'direct deny' | '—'
+  source: 'role default' | 'direct grant' | 'direct deny' | '-'
   expiry: string | null
   overridden: boolean
+}
+
+export interface PermissionToggle {
+  checked: boolean
+  disabled?: boolean
+  onChange(checked: boolean): void
+}
+
+export interface PermissionToggleSpec {
+  isChecked(key: string): boolean
+  setChecked(key: string, checked: boolean): void
+  disabled?: boolean
 }
 
 export interface GrantPermissionRequestDto {

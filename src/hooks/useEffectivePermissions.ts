@@ -12,8 +12,13 @@ export function computeEffective(
   return ALL_PERMISSIONS.map((key) => {
     const roleHas = roleNames.has(key)
     const direct = effectiveNames.has(key)
-    const source: EffectivePermission['source'] =
-      direct && roleHas ? 'role default' : direct ? 'direct grant' : roleHas ? 'role default' : '—'
+    const source: EffectivePermission['source'] = direct
+      ? roleHas
+        ? 'role default'
+        : 'direct grant'
+      : roleHas
+        ? 'role default'
+        : '-'
     return { key, roleHas, effective: direct || roleHas, source, expiry: null, overridden: false }
   })
 }

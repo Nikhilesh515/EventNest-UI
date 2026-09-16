@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { EffectivePermission } from '@/types'
+import type { EffectivePermission, PermissionToggle } from '@/types'
 import { cn } from '@/lib/cn'
 import { fmtDate } from '@/lib/format'
 
@@ -7,8 +7,9 @@ interface PermissionRowProps {
   permission: EffectivePermission
   userName: string
   busy: boolean
-  onGrant(expiresAt?: string | null): void
-  onRevoke(): void
+  onGrant?(expiresAt?: string | null): void
+  onRevoke?(): void
+  toggle?: PermissionToggle
 }
 
 export function PermissionRow({
@@ -17,6 +18,7 @@ export function PermissionRow({
   busy,
   onGrant,
   onRevoke,
+  toggle,
 }: PermissionRowProps) {
   const [confirm, setConfirm] = useState<'revoke' | 'grant' | null>(null)
   const [expiry, setExpiry] = useState('')
@@ -25,6 +27,35 @@ export function PermissionRow({
   useEffect(() => {
     if (confirm) keepRef.current?.focus()
   }, [confirm])
+
+  if (toggle) {
+    const toggleStateClass = toggle.checked ? 'perm-state--on' : 'perm-state--off'
+    return (
+      <div className="perm-row">
+        <div className="perm-row__main">
+          <span className="perm-name">{permission.key}</span>
+          <span className="perm-meta">
+            <span className={cn('perm-state', toggleStateClass)}>
+              {toggle.checked ? 'Included' : 'Excluded'}
+            </span>
+          </span>
+        </div>
+        <div className="perm-action">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={toggle.checked}
+            aria-label={`${permission.key} ${toggle.checked ? 'included' : 'excluded'}`}
+            className={cn('btn', 'btn--sm', toggle.checked ? 'btn--primary' : 'btn--secondary')}
+            disabled={toggle.disabled}
+            onClick={() => toggle.onChange(!toggle.checked)}
+          >
+            {toggle.checked ? 'Remove' : 'Add'}
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   const stateClass = permission.effective ? 'perm-state--on' : 'perm-state--off'
   const sourceClass =
@@ -72,7 +103,7 @@ export function PermissionRow({
               disabled={busy}
               onClick={() => {
                 setConfirm(null)
-                onRevoke()
+                onRevoke?.()
               }}
             >
               Revoke
@@ -105,7 +136,7 @@ export function PermissionRow({
               disabled={busy}
               onClick={() => {
                 setConfirm(null)
-                onGrant(expiry || null)
+                onGrant?.(expiry || null)
               }}
             >
               Grant

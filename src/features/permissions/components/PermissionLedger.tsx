@@ -1,4 +1,4 @@
-import type { EffectivePermission, PermissionGroupName } from '@/types'
+import type { EffectivePermission, PermissionGroupName, PermissionToggleSpec } from '@/types'
 import { PERMISSION_GROUPS } from '@/lib/permissions'
 import { PermissionGroup } from './PermissionGroup'
 
@@ -6,8 +6,9 @@ interface PermissionLedgerProps {
   permissions: EffectivePermission[]
   userName: string
   busyKey: string | null
-  onGrant(key: string, expiresAt?: string | null): void
-  onRevoke(key: string): void
+  onGrant?(key: string, expiresAt?: string | null): void
+  onRevoke?(key: string): void
+  toggle?: PermissionToggleSpec
 }
 
 export function PermissionLedger({
@@ -16,6 +17,7 @@ export function PermissionLedger({
   busyKey,
   onGrant,
   onRevoke,
+  toggle,
 }: PermissionLedgerProps) {
   return (
     <>
@@ -36,6 +38,7 @@ export function PermissionLedger({
             busyKey={busyKey}
             onGrant={onGrant}
             onRevoke={onRevoke}
+            toggle={toggle}
           />
         ))}
       </div>

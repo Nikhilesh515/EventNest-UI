@@ -149,6 +149,12 @@ export const ICON_PATHS: Record<IconName, ReactNode> = {
       <path d="M4 7h16M4 12h16M4 17h16"/>
     </>
   ),
+  gear: (
+    <>
+      <circle cx="12" cy="12" r="3.2"/>
+      <path d="M12 3.5v2.2M12 18.3v2.2M20.5 12h-2.2M5.7 12H3.5M18 6l-1.6 1.6M7.6 16.4 6 18M18 18l-1.6-1.6M7.6 7.6 6 6"/>
+    </>
+  ),
   'moon-lantern': (
     <>
       <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/>
