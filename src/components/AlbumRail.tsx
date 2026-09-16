@@ -33,13 +33,10 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-export function AlbumRail() {
+export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   const { user, isAuthenticated } = useAuthStore();
-  const isCover = location.pathname === '/login' || location.pathname === '/register';
   const activePage = getActivePage(location.pathname);
-
-  if (isCover) return null;
 
   const tabs: IndexTab[] = [
     { page: '01', icon: 'calendar', label: 'Events', href: '/events' },
@@ -63,7 +60,7 @@ export function AlbumRail() {
   });
 
   return (
-    <aside className="album-rail" data-rail aria-label="Album">
+    <>
       <div className="album-rail__cover">
         <div className="album-rail__cover-tile pattern pattern--chiyogami-hana" aria-hidden="true" />
         <Link className="album-rail__brand" to="/events" aria-label="EventNest home">
@@ -85,6 +82,7 @@ export function AlbumRail() {
                 aria-current={activePage === tab.page ? 'page' : undefined}
                 title={`Page ${tab.page}, ${tab.label}`}
                 aria-label={`Page ${tab.page}, ${tab.label}`}
+                onClick={onNavigate}
               >
                 <span className="index-tab__num tnum" aria-hidden="true">{tab.page}</span>
                 <Icon name={tab.icon} size={20} />
@@ -112,6 +110,19 @@ export function AlbumRail() {
         )}
         <ThemeToggle />
       </div>
+    </>
+  );
+}
+
+export function AlbumRail() {
+  const location = useLocation();
+  const isCover = location.pathname === '/login' || location.pathname === '/register';
+
+  if (isCover) return null;
+
+  return (
+    <aside className="album-rail" data-rail aria-label="Album">
+      <AlbumIndexContent />
     </aside>
   );
 }

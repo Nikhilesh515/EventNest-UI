@@ -14,6 +14,7 @@ interface ReplyCardProps {
   event: EventData;
   isOwner: boolean;
   isEnded: boolean;
+  showHanko: boolean;
   selectedStatus: RsvpStatus | null;
   guests: number;
   notes: string;
@@ -38,6 +39,7 @@ export function ReplyCard({
   event,
   isOwner,
   isEnded,
+  showHanko,
   selectedStatus,
   guests,
   notes,
@@ -54,6 +56,7 @@ export function ReplyCard({
   return (
     <aside className="spread__reply reply-card">
       <div className="reply-card__panel rsvp-card">
+        {showHanko && <span className="hanko rsvp-card__hanko" aria-hidden="true">福</span>}
         <p className="rsvp-card__legend">Your RSVP</p>
 
         {!showRsvpForm ? (

@@ -1,10 +1,14 @@
-import { BrowserRouter, Routes, Route } from 'react-router';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
+import { useState } from 'react';
 import { SkipLink } from './components/SkipLink';
 import { AlbumRail } from './components/AlbumRail';
+import { IndexDrawer } from './components/IndexDrawer';
 import { TopBar } from './components/TopBar';
 import { TabBar } from './components/TabBar';
 import { Colophon } from './components/Colophon';
 import { ShellClassManager } from './components/ShellClassManager';
+import { RequireAuth } from './components/RequireAuth';
+import { RequireAnonymous } from './components/RequireAnonymous';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { EventsPage } from './pages/EventsPage';
@@ -21,34 +25,77 @@ import './styles/tailwind.css';
 import './styles/app.css';
 import './styles/views.css';
 
-export default function App() {
+interface RouteMeta {
+  template: string;
+  density: 'festival' | 'work' | 'admin';
+}
+
+function routeMeta(pathname: string): RouteMeta {
+  if (pathname === '/login' || pathname === '/register') {
+    return { template: 'template--cover', density: 'festival' };
+  }
+  if (pathname === '/events/new' || /^\/events\/[^/]+\/edit$/.test(pathname)) {
+    return { template: 'template--clipboard', density: 'work' };
+  }
+  if (/^\/events\/[^/]+\/attendees$/.test(pathname)) {
+    return { template: 'template--guestbook', density: 'work' };
+  }
+  if (/^\/events\/[^/]+$/.test(pathname)) {
+    return { template: 'template--spread', density: 'festival' };
+  }
+  if (pathname === '/my-events' || pathname === '/my-rsvps') {
+    return { template: 'template--notebook', density: 'work' };
+  }
+  if (pathname === '/admin/permissions' || pathname === '/admin/tags') {
+    return { template: 'template--ledger', density: 'admin' };
+  }
+  if (pathname === '/styleguide') {
+    return { template: 'template--guide', density: 'festival' };
+  }
+  return { template: 'template--collage', density: 'festival' };
+}
+
+function Shell() {
+  const location = useLocation();
+  const { template, density } = routeMeta(location.pathname);
+  const [indexOpen, setIndexOpen] = useState(false);
+
   return (
-    <BrowserRouter>
+    <>
       <ShellClassManager />
       <SkipLink />
-      <TopBar />
+      <TopBar indexOpen={indexOpen} onOpenIndex={() => setIndexOpen(true)} />
       <AlbumRail />
-      <main id="main-view" className="content-canvas" data-view tabIndex={-1}>
-        <div className="template" data-template>
+      <IndexDrawer open={indexOpen} onClose={() => setIndexOpen(false)} />
+      <main id="main-view" className="content-canvas" data-view data-density={density} tabIndex={-1}>
+        <div className={`template ${template}`} data-template>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<RequireAnonymous><LoginPage /></RequireAnonymous>} />
+            <Route path="/register" element={<RequireAnonymous><RegisterPage /></RequireAnonymous>} />
             <Route path="/events" element={<EventsPage />} />
-            <Route path="/events/new" element={<CreateEventPage />} />
+            <Route path="/events/new" element={<RequireAuth><CreateEventPage /></RequireAuth>} />
             <Route path="/events/:id" element={<EventDetailPage />} />
-            <Route path="/events/:id/edit" element={<EditEventPage />} />
-            <Route path="/events/:id/attendees" element={<AttendeesPage />} />
-            <Route path="/my-events" element={<MyEventsPage />} />
-            <Route path="/my-rsvps" element={<MyRsvpsPage />} />
-            <Route path="/admin/permissions" element={<AdminPermissionsPage />} />
-            <Route path="/admin/tags" element={<AdminTagsPage />} />
+            <Route path="/events/:id/edit" element={<RequireAuth><EditEventPage /></RequireAuth>} />
+            <Route path="/events/:id/attendees" element={<RequireAuth><AttendeesPage /></RequireAuth>} />
+            <Route path="/my-events" element={<RequireAuth><MyEventsPage /></RequireAuth>} />
+            <Route path="/my-rsvps" element={<RequireAuth><MyRsvpsPage /></RequireAuth>} />
+            <Route path="/admin/permissions" element={<RequireAuth><AdminPermissionsPage /></RequireAuth>} />
+            <Route path="/admin/tags" element={<RequireAuth><AdminTagsPage /></RequireAuth>} />
             <Route path="/styleguide" element={<div className="page-doc"><div className="page-doc__content"><h1>Styleguide</h1></div></div>} />
             <Route path="*" element={<EventsPage />} />
           </Routes>
         </div>
         <Colophon />
       </main>
-      <TabBar />
+      <TabBar indexOpen={indexOpen} onOpenIndex={() => setIndexOpen(true)} />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Shell />
     </BrowserRouter>
   );
 }

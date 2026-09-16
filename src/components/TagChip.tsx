@@ -1,4 +1,5 @@
-import { currentColorMode, tagStyleVars } from '../lib/tag-style';
+import { tagStyleVars } from '../lib/tag-style';
+import { useColorMode } from '../lib/theme-store';
 
 interface Tag {
   id: string;
@@ -14,11 +15,12 @@ interface TagChipProps {
 }
 
 export function TagChip({ tag, tilt = null, md = false, className }: TagChipProps) {
+  const mode = useColorMode();
   const cls = ['tag-chip', md ? 'tag-chip--md' : '', className ?? ''].filter(Boolean).join(' ');
   return (
     <span
       className={cls}
-      style={tagStyleVars(tag.color, currentColorMode(), tilt)}
+      style={tagStyleVars(tag.color, mode, tilt)}
       title={tag.name}
       aria-label={tag.name}
     >

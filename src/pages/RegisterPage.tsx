@@ -12,6 +12,8 @@ function EyeIcon() {
   );
 }
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,17 +21,31 @@ export function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const register = useAuthStore((s) => s.register);
   const navigate = useNavigate();
 
+  const validate = (): boolean => {
+    const errs: Record<string, string> = {};
+    if (!name.trim()) errs.name = 'Enter a display name.';
+    else if (name.trim().length > 100) errs.name = 'That name is a bit long (100 max).';
+    if (!EMAIL_PATTERN.test(email.trim())) errs.email = 'Enter a valid email address.';
+    if (!password) errs.password = 'Enter your password.';
+    else if (password.length < 8) errs.password = 'Use at least 8 characters.';
+    if (confirmPassword !== password) errs.confirmPassword = "Passwords don't match.";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const clearError = (field: string) => {
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setError('');
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
     setLoading(true);
     try {
       await register(name, email, password);
@@ -66,7 +82,7 @@ export function RegisterPage() {
             <p className="cover__sub">Set up your stall in a minute.</p>
             {error && <div className="alert alert--error">{error}</div>}
             <form onSubmit={handleSubmit} noValidate>
-              <div className="field">
+              <div className={`field${errors.name ? ' field--error' : ''}`}>
                 <label className="field__label" htmlFor="a-name">Display name</label>
                 <input
                   id="a-name"
@@ -75,11 +91,14 @@ export function RegisterPage() {
                   autoComplete="name"
                   maxLength={100}
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => { setName(e.target.value); clearError('name'); }}
+                  onBlur={validate}
+                  aria-invalid={!!errors.name}
                   required
                 />
+                {errors.name && <p className="field__error" role="alert">{errors.name}</p>}
               </div>
-              <div className="field">
+              <div className={`field${errors.email ? ' field--error' : ''}`}>
                 <label className="field__label" htmlFor="a-email">Email</label>
                 <input
                   id="a-email"
@@ -88,11 +107,14 @@ export function RegisterPage() {
                   autoComplete="email"
                   placeholder="ava@eventnest.dev"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
+                  onBlur={validate}
+                  aria-invalid={!!errors.email}
                   required
                 />
+                {errors.email && <p className="field__error" role="alert">{errors.email}</p>}
               </div>
-              <div className="field">
+              <div className={`field${errors.password ? ' field--error' : ''}`}>
                 <label className="field__label" htmlFor="a-password">Password</label>
                 <div className="input-wrap">
                   <input
@@ -101,7 +123,9 @@ export function RegisterPage() {
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="new-password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
+                    onBlur={validate}
+                    aria-invalid={!!errors.password}
                     required
                   />
                   <button
@@ -114,8 +138,9 @@ export function RegisterPage() {
                     <EyeIcon />
                   </button>
                 </div>
+                {errors.password && <p className="field__error" role="alert">{errors.password}</p>}
               </div>
-              <div className="field">
+              <div className={`field${errors.confirmPassword ? ' field--error' : ''}`}>
                 <label className="field__label" htmlFor="a-confirm">Confirm password</label>
                 <input
                   id="a-confirm"
@@ -123,9 +148,12 @@ export function RegisterPage() {
                   type="password"
                   autoComplete="new-password"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e) => { setConfirmPassword(e.target.value); clearError('confirmPassword'); }}
+                  onBlur={validate}
+                  aria-invalid={!!errors.confirmPassword}
                   required
                 />
+                {errors.confirmPassword && <p className="field__error" role="alert">{errors.confirmPassword}</p>}
               </div>
               <button type="submit" className="btn btn--primary btn--block" disabled={loading}>
                 <span className="btn__label">{loading ? 'Creating...' : 'Create account'}</span>

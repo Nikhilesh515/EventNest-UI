@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuthStore } from '../lib/auth-store';
 import { NekoMascot } from '../components/NekoMascot';
 
@@ -12,22 +12,40 @@ function EyeIcon() {
   );
 }
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from;
+
+  const validate = (): boolean => {
+    const errs: Record<string, string> = {};
+    if (!EMAIL_PATTERN.test(email.trim())) errs.email = 'Enter a valid email address.';
+    if (!password) errs.password = 'Enter your password.';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const clearError = (field: string) => {
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setError('');
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/events');
+      navigate(from && from !== '/login' && from !== '/register' ? from : '/events', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -60,7 +78,7 @@ export function LoginPage() {
             <p className="cover__sub">Pick up where you left off.</p>
             {error && <div className="alert alert--error">{error}</div>}
             <form onSubmit={handleSubmit} noValidate>
-              <div className="field">
+              <div className={`field${errors.email ? ' field--error' : ''}`}>
                 <label className="field__label" htmlFor="a-email">Email</label>
                 <input
                   id="a-email"
@@ -69,11 +87,14 @@ export function LoginPage() {
                   autoComplete="email"
                   placeholder="ava@eventnest.dev"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
+                  onBlur={validate}
+                  aria-invalid={!!errors.email}
                   required
                 />
+                {errors.email && <p className="field__error" role="alert">{errors.email}</p>}
               </div>
-              <div className="field">
+              <div className={`field${errors.password ? ' field--error' : ''}`}>
                 <label className="field__label" htmlFor="a-password">Password</label>
                 <div className="input-wrap">
                   <input
@@ -82,7 +103,9 @@ export function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
+                    onBlur={validate}
+                    aria-invalid={!!errors.password}
                     required
                   />
                   <button
@@ -95,6 +118,7 @@ export function LoginPage() {
                     <EyeIcon />
                   </button>
                 </div>
+                {errors.password && <p className="field__error" role="alert">{errors.password}</p>}
               </div>
               <button type="submit" className="btn btn--primary btn--block" disabled={loading}>
                 <span className="btn__label">{loading ? 'Logging in...' : 'Log in'}</span>

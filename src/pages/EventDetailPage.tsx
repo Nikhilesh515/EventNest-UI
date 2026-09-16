@@ -7,7 +7,8 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { Postcard } from '../components/Postcard';
 import { ReplyCard } from '../components/ReplyCard';
 import { PostcardSpread } from '../components/PostcardSpread';
-import { tagStyleVars, currentColorMode } from '../lib/tag-style';
+import { tagStyleVars } from '../lib/tag-style';
+import { useColorMode } from '../lib/theme-store';
 import type { RsvpStatus } from '../components/RsvpStickerSheet';
 
 interface EventTag {
@@ -69,6 +70,7 @@ export function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const mode = useColorMode();
   const { user } = useAuthStore();
 
   const [selectedStatus, setSelectedStatus] = useState<RsvpStatus | null>(null);
@@ -211,7 +213,7 @@ export function EventDetailPage() {
                 <span
                   key={tag.id}
                   className="tag-chip tag-chip--md"
-                  style={tagStyleVars(tag.color, currentColorMode(), i % 2 === 0 ? -1 : 1)}
+                  style={tagStyleVars(tag.color, mode, i % 2 === 0 ? -1 : 1)}
                 >
                   <span className="tag-chip__dot" />
                   <span className="tag-chip__label">{tag.name}</span>
@@ -237,6 +239,7 @@ export function EventDetailPage() {
             event={event}
             isOwner={isOwner}
             isEnded={isEnded}
+            showHanko={!!myRsvp && rsvpKeyFromStatus(myRsvp.status) === 'going'}
             selectedStatus={selectedStatus}
             guests={guests}
             notes={notes}

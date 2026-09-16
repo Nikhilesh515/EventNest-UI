@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { Modal } from './Modal';
 
 interface ConfirmModalProps {
   open: boolean;
@@ -21,41 +21,27 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) {
-      dialog.showModal();
-    } else if (!open && dialog.open) {
-      dialog.close();
-    }
-  }, [open]);
-
   return (
-    <dialog
-      ref={dialogRef}
-      className="confirm-modal"
+    <Modal
+      open={open}
+      title={title}
       onClose={onCancel}
-      onClick={(e) => { if (e.target === dialogRef.current) onCancel(); }}
-    >
-      <div className="confirm-modal__body">
-        <h2 className="confirm-modal__title">{title}</h2>
-        <p className="confirm-modal__msg">{body}</p>
-        <div className="confirm-modal__actions">
-          <button type="button" className="btn btn--ghost btn--sm" onClick={onCancel}>
+      footer={
+        <>
+          <button type="button" className="btn btn--secondary" onClick={onCancel}>
             {cancelLabel}
           </button>
           <button
             type="button"
-            className={`btn btn--sm ${danger ? 'btn--danger' : 'btn--primary'}`}
+            className={`btn ${danger ? 'btn--danger' : 'btn--primary'}`}
             onClick={onConfirm}
           >
             {confirmLabel}
           </button>
-        </div>
-      </div>
-    </dialog>
+        </>
+      }
+    >
+      <p>{body}</p>
+    </Modal>
   );
 }

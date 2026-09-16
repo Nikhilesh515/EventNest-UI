@@ -1,17 +1,14 @@
 import { Link, useLocation } from 'react-router';
 import { ThemeToggle } from './ThemeToggle';
 
-export function TopBar() {
+interface TopBarProps {
+  indexOpen: boolean;
+  onOpenIndex: () => void;
+}
+
+export function TopBar({ indexOpen, onOpenIndex }: TopBarProps) {
   const location = useLocation();
   const isCover = location.pathname === '/login' || location.pathname === '/register';
-
-  if (!isCover) {
-    return (
-      <header className="topbar" data-topbar role="banner" hidden>
-        <span />
-      </header>
-    );
-  }
 
   return (
     <header className="topbar" data-topbar role="banner">
@@ -20,6 +17,18 @@ export function TopBar() {
         <span className="topbar__hanko" aria-hidden="true">祭</span>
       </Link>
       <span className="topbar__spacer" />
+      {!isCover && (
+        <button
+          type="button"
+          className="btn btn--secondary btn--sm topbar__index"
+          aria-haspopup="dialog"
+          aria-expanded={indexOpen}
+          aria-controls="index-drawer"
+          onClick={onOpenIndex}
+        >
+          Index ▾
+        </button>
+      )}
       <ThemeToggle variant="icon" />
     </header>
   );

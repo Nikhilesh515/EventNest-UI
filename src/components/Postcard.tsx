@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { MetaGrid } from './MetaGrid';
-import { normalizeTag, currentColorMode } from '../lib/tag-style';
+import { normalizeTag } from '../lib/tag-style';
+import { useColorMode } from '../lib/theme-store';
 
 interface EventTag {
   id: string;
@@ -43,8 +44,9 @@ function formatDate(iso: string): string {
 }
 
 export function Postcard({ event, isOwner, canManage, hasManageRsvp, isEnded }: PostcardProps) {
+  const mode = useColorMode();
   const firstTagColor = event.tags[0]?.color || '#A8D8EA';
-  const patchTint = normalizeTag(firstTagColor, currentColorMode()).fill;
+  const patchTint = normalizeTag(firstTagColor, mode).fill;
 
   return (
     <div className="spread__postcard postcard">

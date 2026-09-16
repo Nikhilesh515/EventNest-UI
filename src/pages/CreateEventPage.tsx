@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import { useAuthStore } from '../lib/auth-store';
 import { Breadcrumbs } from '../components/Breadcrumbs';
-import { EventForm } from '../components/EventForm';
+import { EventForm, type EventFormMode } from '../components/EventForm';
 
 interface EventTag {
   id: string;
@@ -18,8 +19,22 @@ interface CreateEventResponse {
   result: { id: string };
 }
 
+interface EventFormValues {
+  title: string;
+  description: string;
+  location: string;
+  startsAt: string;
+  endsAt: string;
+  capacity: number;
+  visibility: 'Public' | 'Private';
+  tagIds: string[];
+}
+
 export function CreateEventPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const canCreateTag = ['Admin', 'SuperAdmin', 'Moderator'].includes(user?.role || '');
 
   const { data: tagsData } = useQuery({
     queryKey: ['tags'],
@@ -27,9 +42,15 @@ export function CreateEventPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (values: { title: string; description: string; location: string; startsAt: string; endsAt: string; capacity: number; visibility: string; tagIds: string[] }) =>
-      api.post<CreateEventResponse>('/api/events', values),
+    mutationFn: async ({ values, mode }: { values: EventFormValues; mode: EventFormMode }) => {
+      const created = await api.post<CreateEventResponse>('/api/events', values);
+      if (mode === 'publish') {
+        await api.put(`/api/events/${created.result.id}/publish`, {});
+      }
+      return created;
+    },
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
       navigate(`/events/${data.result.id}`);
     },
   });
@@ -54,8 +75,8 @@ export function CreateEventPage() {
         <EventForm
           availableTags={tagsData?.result || []}
           loading={createMutation.isPending}
-          submitLabel="Create & publish"
-          onSubmit={(values) => createMutation.mutate(values)}
+          canCreateTag={canCreateTag}
+          onSubmit={(values, mode) => createMutation.mutate({ values, mode })}
           onCancel={() => navigate('/my-events')}
         />
       </div>

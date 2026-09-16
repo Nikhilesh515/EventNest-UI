@@ -1,5 +1,7 @@
 import { Link, useLocation } from 'react-router';
 import { useAuthStore } from '../lib/auth-store';
+import { useMediaQuery } from '../lib/use-media-query';
+import { Icon } from './Icon';
 
 function TabIcon({ name }: { name: string }) {
   const icons: Record<string, React.ReactNode> = {
@@ -33,13 +35,6 @@ function TabIcon({ name }: { name: string }) {
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
     ),
-    'more-horizontal': (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="1" />
-        <circle cx="19" cy="12" r="1" />
-        <circle cx="5" cy="12" r="1" />
-      </svg>
-    ),
   };
   return <>{icons[name] || null}</>;
 }
@@ -52,18 +47,25 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href;
 }
 
-export function TabBar() {
+interface TabBarProps {
+  indexOpen: boolean;
+  onOpenIndex: () => void;
+}
+
+export function TabBar({ indexOpen, onOpenIndex }: TabBarProps) {
   const location = useLocation();
   const { isAuthenticated, user } = useAuthStore();
+  const showCreate = useMediaQuery('(min-width: 361px)');
   const isCover = location.pathname === '/login' || location.pathname === '/register';
 
   if (isCover) return null;
 
   const tabs = [
     { icon: 'calendar', label: 'Events', href: '/events', show: true },
+    { icon: 'user', label: 'Log in', href: '/login', show: !isAuthenticated },
     { icon: 'users', label: 'My events', href: '/my-events', show: isAuthenticated && user?.role !== 'User' },
     { icon: 'ticket', label: 'My RSVPs', href: '/my-rsvps', show: isAuthenticated },
-    { icon: 'plus', label: 'Create', href: '/events/new', show: isAuthenticated && (user?.role === 'Admin' || user?.role === 'SuperAdmin') },
+    { icon: 'plus', label: 'Create', href: '/events/new', show: isAuthenticated && (user?.role === 'Admin' || user?.role === 'SuperAdmin') && showCreate },
   ].filter((t) => t.show);
 
   return (
@@ -79,8 +81,15 @@ export function TabBar() {
           <span className="tab-item__label">{tab.label}</span>
         </Link>
       ))}
-      <button type="button" className="tab-item" aria-haspopup="dialog" aria-expanded="false" aria-controls="index-drawer">
-        <TabIcon name="more-horizontal" />
+      <button
+        type="button"
+        className="tab-item"
+        aria-haspopup="dialog"
+        aria-expanded={indexOpen}
+        aria-controls="index-drawer"
+        onClick={onOpenIndex}
+      >
+        <Icon name={isAuthenticated ? 'moon-lantern' : 'user'} size={22} />
         <span className="tab-item__label">Index</span>
       </button>
     </nav>

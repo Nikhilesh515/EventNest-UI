@@ -1,4 +1,7 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
+import { Icon } from './Icon';
+import { StatusBadge, VisBadge } from './Badges';
 
 interface EventTag {
   id: string;
@@ -12,6 +15,9 @@ interface EventData {
   location: string | null;
   startsAt: string;
   endsAt: string;
+  capacity: number;
+  goingCount: number;
+  maybeCount: number;
   status: string;
   visibility: string;
   tags: EventTag[];
@@ -26,34 +32,45 @@ interface PunchRowProps {
   loading?: boolean;
 }
 
-function formatShortDate(iso: string): string {
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+function formatDateFlag(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
 }
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
-function statusBadge(status: string): string {
-  const map: Record<string, string> = {
-    Draft: 'badge--draft',
-    Published: 'badge--published',
-    Cancelled: 'badge--cancelled',
-    Completed: 'badge--completed',
-  };
-  return map[status] || '';
-}
-
 export function PunchRow({ event, onPublish, onCancel, onComplete, onDelete, loading }: PunchRowProps) {
   const isPast = new Date(event.endsAt) < new Date();
-  const tagNames = event.tags.map((t) => t.name).join(', ');
+  const full = event.capacity > 0 && event.goingCount >= event.capacity;
+  const tagNames = event.tags.map((t) => t.name).join(' · ');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
 
   return (
     <article className={`punch-row${event.status === 'Cancelled' ? ' is-cancelled' : ''}${event.status === 'Draft' ? ' is-draft' : ''}`}>
       <div className="punch-row__head">
         <div className="punch-row__date">
-          <span>{formatShortDate(event.startsAt)}</span>
+          <span>{formatDateFlag(event.startsAt)}</span>
         </div>
         <div className="punch-row__body">
           <h2 className="punch-row__title">
@@ -64,9 +81,14 @@ export function PunchRow({ event, onPublish, onCancel, onComplete, onDelete, loa
             {formatTime(event.startsAt)}
             {event.location && ` · ${event.location}`}
           </p>
+          <p className="punch-row__counts tnum">
+            Going {event.goingCount} · Maybe {event.maybeCount} · {event.capacity} cap
+            {full && <> · <span style={{ color: 'var(--text-danger)' }}>FULL</span></>}
+          </p>
         </div>
         <div className="cluster">
-          <span className={`badge ${statusBadge(event.status)}`}>{event.status}</span>
+          <StatusBadge status={event.status} />
+          <VisBadge visibility={event.visibility} />
         </div>
       </div>
       <div className="punch-row__actions">
@@ -87,11 +109,39 @@ export function PunchRow({ event, onPublish, onCancel, onComplete, onDelete, loa
           </button>
         )}
         <Link className="btn btn--secondary btn--sm" to={`/events/${event.id}/attendees`}>Attendees</Link>
-        {onDelete && (
-          <button type="button" className="btn btn--danger btn--sm" onClick={() => onDelete(event.id)} disabled={loading}>
-            Delete
+        <div className="menu-wrap" ref={menuRef}>
+          <button
+            type="button"
+            className="icon-btn"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            aria-label={`More actions for ${event.title}`}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <Icon name="chevron-down" size={16} />
           </button>
-        )}
+          {menuOpen && (
+            <div className="menu-panel" role="menu">
+              <Link className="menu-item" role="menuitem" to={`/events/${event.id}/edit`} onClick={() => setMenuOpen(false)}>
+                <Icon name="edit" size={16} /> Edit
+              </Link>
+              {onDelete && (
+                <button
+                  type="button"
+                  className="menu-item menu-item--danger"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onDelete(event.id);
+                  }}
+                  disabled={loading}
+                >
+                  <Icon name="trash" size={16} /> Delete
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </article>
   );

@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { AttendeeTable } from '../components/AttendeeTable';
+import { normalizeTag } from '../lib/tag-style';
+import { useColorMode } from '../lib/theme-store';
 import { useState } from 'react';
 
 interface EventData {
@@ -11,6 +13,7 @@ interface EventData {
   capacity: number;
   organizerId: string;
   organizerName: string;
+  tags?: { id: string; name: string; color: string }[];
 }
 
 interface RsvpData {
@@ -44,6 +47,7 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 
 export function AttendeesPage() {
   const { id } = useParams<{ id: string }>();
+  const mode = useColorMode();
   const [filter, setFilter] = useState<FilterKey>('all');
 
   const { data: eventData } = useQuery({
@@ -91,7 +95,13 @@ export function AttendeesPage() {
       <div className="guestbook">
         <div className="guestbook__head">
           <span className="guestbook__watermark kanji-watermark" aria-hidden="true" lang="ja">縁</span>
-          <span className="guestbook__frame" aria-hidden="true">{initials}</span>
+          <span
+            className="guestbook__frame"
+            aria-hidden="true"
+            style={{ '--frame-tint': normalizeTag(event?.tags?.[0]?.color, mode).edge } as React.CSSProperties}
+          >
+            {initials}
+          </span>
           <div className="guestbook__titles">
             <p className="page-doc__overline">Attendees · 縁</p>
             <h1 className="page-doc__title">Attendees</h1>

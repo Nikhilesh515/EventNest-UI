@@ -1,6 +1,9 @@
 import { Link } from 'react-router';
 import type { MosaicSlot } from '../lib/mosaic';
 import { tilePatternClass, washiVariant } from '../lib/mosaic';
+import type { ColorMode } from '../lib/tag-style';
+import { normalizeTag } from '../lib/tag-style';
+import { useColorMode } from '../lib/theme-store';
 import { Icon } from './Icon';
 import { TagChipList } from './TagChip';
 import { StatusBadge, VisBadge } from './Badges';
@@ -60,10 +63,8 @@ function fmtTimeRangeSameDay(start: string, end: string) {
   return `${fmt(a)} – ${fmt(b)}`;
 }
 
-function tileTint(event: Event) {
-  const tints = ['rgba(255,180,162,.08)', 'rgba(162,189,255,.08)', 'rgba(255,217,61,.08)', 'rgba(162,255,209,.08)'];
-  const hash = event.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  return tints[hash % tints.length];
+function tileTint(event: Event, mode: ColorMode) {
+  return normalizeTag(event.tags?.[0]?.color, mode).fill;
 }
 
 function tileAria(event: Event) {
@@ -80,6 +81,7 @@ interface PolaroidTileProps {
 }
 
 export function PolaroidTile({ event, slot, taped = false }: PolaroidTileProps) {
+  const mode = useColorMode();
   const flag = dateFlag(event.startsAt);
   const kind = slot.kind;
   const full = event.capacity > 0 && event.goingCount >= event.capacity;
@@ -99,7 +101,7 @@ export function PolaroidTile({ event, slot, taped = false }: PolaroidTileProps) 
   return (
     <article
       className={cls}
-      style={{ '--tile-rot': `${slot.rot}deg`, '--tile-tint': tileTint(event) } as React.CSSProperties}
+      style={{ '--tile-rot': `${slot.rot}deg`, '--tile-tint': tileTint(event, mode) } as React.CSSProperties}
       data-event-id={event.id}
       aria-label={tileAria(event)}
       role="listitem"

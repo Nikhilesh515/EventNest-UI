@@ -1,6 +1,4 @@
-import { useState } from 'react';
-
-const THEME_KEY = 'eventnest.kawaii.scrapbook.theme';
+import { useColorMode, useThemeStore } from '../lib/theme-store';
 
 function getIcon(isDark: boolean) {
   if (isDark) {
@@ -25,25 +23,9 @@ function getIcon(isDark: boolean) {
   );
 }
 
-function getInitialTheme(): boolean {
-  try {
-    const stored = localStorage.getItem(THEME_KEY);
-    if (stored) return stored === 'dark';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  } catch {
-    return false;
-  }
-}
-
 export function ThemeToggle({ variant = 'rail' }: { variant?: 'rail' | 'icon' }) {
-  const [isDark, setIsDark] = useState(getInitialTheme);
-
-  const toggle = () => {
-    const next = isDark ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem(THEME_KEY, next);
-    setIsDark(!isDark);
-  };
+  const isDark = useColorMode() === 'dark';
+  const toggle = useThemeStore((s) => s.toggle);
 
   if (variant === 'icon') {
     return (
@@ -52,7 +34,7 @@ export function ThemeToggle({ variant = 'rail' }: { variant?: 'rail' | 'icon' })
         className="icon-btn"
         onClick={toggle}
         aria-pressed={isDark}
-        aria-label={isDark ? 'Switch to light mode' : 'Switch to night stalls'}
+        aria-label={isDark ? 'Switch to festival day' : 'Switch to night stalls'}
       >
         {getIcon(isDark)}
       </button>
@@ -65,11 +47,11 @@ export function ThemeToggle({ variant = 'rail' }: { variant?: 'rail' | 'icon' })
       className="rail-theme"
       onClick={toggle}
       aria-pressed={isDark}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to night stalls'}
+      aria-label={isDark ? 'Switch to festival day' : 'Switch to night stalls'}
     >
       {getIcon(isDark)}
       <span className="rail-theme__label">
-        {isDark ? 'Day stalls' : 'Night stalls'}
+        {isDark ? 'Festival day' : 'Night stalls'}
       </span>
     </button>
   );

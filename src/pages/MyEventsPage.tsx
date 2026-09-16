@@ -20,6 +20,8 @@ interface EventData {
   startsAt: string;
   endsAt: string;
   capacity: number;
+  goingCount: number;
+  maybeCount: number;
   status: string;
   visibility: string;
   tags: EventTag[];

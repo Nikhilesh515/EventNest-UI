@@ -44,9 +44,7 @@ interface EventsResponse {
 }
 
 interface TagsResponse {
-  result: {
-    items: Array<{ id: string; name: string; color: string }>;
-  };
+  result: Array<{ id: string; name: string; color: string }>;
 }
 
 const VIEW_STORAGE_KEY = 'eventnest.kawaii.scrapbook.view';
@@ -117,7 +115,7 @@ export function EventsPage() {
     queryFn: () => api.get<TagsResponse>('/api/tags'),
   });
 
-  const tags = tagsData?.result?.items || [];
+  const tags = tagsData?.result || [];
   const events = eventsData?.result?.items || [];
   const total = eventsData?.result?.total ?? events.length;
   const pages = eventsData?.result?.pages ?? 1;
@@ -148,7 +146,7 @@ export function EventsPage() {
   };
 
   return (
-    <div className="template--collage">
+    <div>
       <PageHeader
         className="collage-hero"
         tapeVariant="sakura"

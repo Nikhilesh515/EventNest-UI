@@ -3,8 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuthStore } from '../lib/auth-store';
 import { Breadcrumbs } from '../components/Breadcrumbs';
-import { EventForm } from '../components/EventForm';
+import { EventForm, type EventFormMode } from '../components/EventForm';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { Icon } from '../components/Icon';
 import { useState } from 'react';
 
 interface EventTag {
@@ -35,12 +36,24 @@ interface TagsResponse {
   result: EventTag[];
 }
 
+interface EventFormValues {
+  title: string;
+  description: string;
+  location: string;
+  startsAt: string;
+  endsAt: string;
+  capacity: number;
+  visibility: 'Public' | 'Private';
+  tagIds: string[];
+}
+
 export function EditEventPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
+  const canCreateTag = ['Admin', 'SuperAdmin', 'Moderator'].includes(user?.role || '');
 
   const { data: eventData, isLoading } = useQuery({
     queryKey: ['event', id],
@@ -54,10 +67,15 @@ export function EditEventPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (values: { title: string; description: string; location: string; startsAt: string; endsAt: string; capacity: number; visibility: string; tagIds: string[] }) =>
-      api.put(`/api/events/${id}`, values),
+    mutationFn: async ({ values, mode }: { values: EventFormValues; mode: EventFormMode }) => {
+      await api.put(`/api/events/${id}`, values);
+      if (mode === 'publish' && eventData?.result.status === 'Draft') {
+        await api.put(`/api/events/${id}/publish`, {});
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['event', id] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
       navigate(`/events/${id}`);
     },
   });
@@ -130,16 +148,16 @@ export function EditEventPage() {
           }}
           availableTags={tagsData?.result || []}
           loading={updateMutation.isPending}
-          submitLabel="Save changes"
-          onSubmit={(values) => updateMutation.mutate(values)}
+          canCreateTag={canCreateTag}
+          onSubmit={(values, mode) => updateMutation.mutate({ values, mode })}
           onCancel={() => navigate(`/events/${id}`)}
         />
 
         {isOwner && (
           <>
             <section className="clipboard-status">
-              <p className="page-doc__overline">Status</p>
-              <div className="cluster-3" style={{ marginTop: 'var(--space-3)' }}>
+              <div className="edit-status-strip">
+                <span className="field__label">Status: {event.status}</span>
                 <span className={`badge badge--${event.status.toLowerCase()}`}>{event.status}</span>
                 {event.status === 'Draft' && (
                   <button type="button" className="btn btn--leaf btn--sm" onClick={() => statusMutation.mutate('publish')}>
@@ -151,12 +169,17 @@ export function EditEventPage() {
                     Cancel event
                   </button>
                 )}
+                {event.status === 'Published' && new Date(event.endsAt) < new Date() && (
+                  <button type="button" className="btn btn--leaf btn--sm" onClick={() => statusMutation.mutate('complete')}>
+                    Mark complete
+                  </button>
+                )}
               </div>
             </section>
 
             <section className="clipboard-danger">
               <button type="button" className="btn btn--danger btn--sm" onClick={() => setConfirmAction('delete')}>
-                Delete event
+                <Icon name="trash" size={16} /> Delete event
               </button>
             </section>
           </>
