@@ -9,6 +9,7 @@ export const USERS = {
   me: '/api/users/me',
   list: '/api/users',
   byId: (id: string) => `/api/users/${id}`,
+  role: (id: string) => `/api/users/${id}/role`,
 } as const
 
 export const PERMISSIONS = {

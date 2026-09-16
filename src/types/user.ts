@@ -5,6 +5,7 @@ export interface UserDto {
   displayName: string
   email: string
   role: UserRole
+  roleId: string
   isActive: boolean
   createdAt: string | null
 }
@@ -15,6 +16,17 @@ export interface UpdateUserRequestDto {
 
 export interface UpdateUserRequest {
   displayName: string
+}
+
+export interface CreateUserRequest {
+  email: string
+  displayName: string
+  password: string
+  roleId: string
+}
+
+export interface AssignRoleRequest {
+  roleId: string
 }
 
 export interface RegisterInput {

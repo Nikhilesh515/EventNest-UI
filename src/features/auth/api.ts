@@ -16,6 +16,7 @@ interface ApiUserDto {
   email: string
   displayName: string
   roleName: UserDto['role']
+  roleId: string
   isActive: boolean
 }
 
@@ -25,6 +26,7 @@ function toUser(raw: ApiUserDto): UserDto {
     email: raw.email,
     displayName: raw.displayName,
     role: raw.roleName,
+    roleId: raw.roleId,
     isActive: raw.isActive,
     createdAt: null,
   }

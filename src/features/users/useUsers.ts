@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { listUsers } from './api'
+import type { ListUsersParams } from './api'
 import { userKeys } from './queryKeys'
 
-export function useUsers(page: number, pageSize: number) {
+export function useUsers(params: ListUsersParams) {
   return useQuery({
-    queryKey: userKeys.list(page, pageSize),
-    queryFn: ({ signal }) => listUsers(page, pageSize, signal),
+    queryKey: userKeys.list(params),
+    queryFn: ({ signal }) => listUsers(params, signal),
     placeholderData: (previous) => previous,
   })
 }
