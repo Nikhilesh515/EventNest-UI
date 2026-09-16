@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuthStore } from '../lib/auth-store';
 import { ThemeToggle } from './ThemeToggle';
 import { Icon, type IconName } from './Icon';
@@ -35,8 +35,12 @@ function getInitials(name: string): string {
 
 export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
-  const { user, isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const activePage = getActivePage(location.pathname);
+
+  const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin';
+  const isModOrAbove = user?.role === 'Moderator' || isAdmin;
 
   const tabs: IndexTab[] = [
     { page: '01', icon: 'calendar', label: 'Events', href: '/events' },
@@ -45,6 +49,7 @@ export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
     { page: '04', icon: 'plus', label: 'Create event', href: '/events/new' },
     { page: '06', icon: 'star', label: 'Permissions', href: '/admin/permissions' },
     { page: '07', icon: 'tag', label: 'Tags', href: '/admin/tags' },
+    { page: '07b', icon: 'users', label: 'Roles', href: '/admin/roles' },
     { page: '08', icon: 'moon-lantern', label: 'Styleguide', href: '/styleguide' },
     { page: '09', icon: 'user', label: 'Log in', href: '/login' },
     { page: '10', icon: 'user', label: 'Register', href: '/register' },
@@ -52,12 +57,18 @@ export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
 
   const visibleTabs = tabs.filter((tab) => {
     if (tab.page === '09' || tab.page === '10') return !isAuthenticated;
-    if (tab.page === '02') return isAuthenticated && user?.role !== 'User';
-    if (tab.page === '04') return isAuthenticated && (user?.role === 'Admin' || user?.role === 'SuperAdmin');
-    if (tab.page === '06') return isAuthenticated && (user?.role === 'Admin' || user?.role === 'SuperAdmin');
-    if (tab.page === '07') return isAuthenticated && (user?.role === 'Admin' || user?.role === 'SuperAdmin');
+    if (tab.page === '02') return isAuthenticated && isModOrAbove;
+    if (tab.page === '04') return isAuthenticated && isAdmin;
+    if (tab.page === '06') return isAuthenticated && isAdmin;
+    if (tab.page === '07') return isAuthenticated && isModOrAbove;
+    if (tab.page === '07b') return isAuthenticated && isAdmin;
     return true;
   });
+
+  function handleLogout() {
+    logout();
+    navigate('/login');
+  }
 
   return (
     <>
@@ -95,13 +106,18 @@ export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
 
       <div className="album-rail__foot">
         {isAuthenticated && user ? (
-          <button type="button" className="rail-user" aria-haspopup="menu" aria-expanded="false" aria-label={`Account menu for ${user.name}`}>
-            <span className="rail-user__avatar" aria-hidden="true">{getInitials(user.name)}</span>
-            <span className="rail-user__text">
-              <span className="rail-user__name">{user.name}</span>
-              <span className="rail-user__role">{user.role}{user.role !== 'User' ? ' · 手帳' : ''}</span>
-            </span>
-          </button>
+          <>
+            <button type="button" className="rail-user" aria-haspopup="menu" aria-expanded="false" aria-label={`Account menu for ${user.name}`}>
+              <span className="rail-user__avatar" aria-hidden="true">{getInitials(user.name)}</span>
+              <span className="rail-user__text">
+                <span className="rail-user__name">{user.name}</span>
+                <span className="rail-user__role">{user.role}{isModOrAbove ? ' · 手帳' : ''}</span>
+              </span>
+            </button>
+            <button type="button" className="btn btn--secondary btn--sm" onClick={handleLogout}>
+              Log out
+            </button>
+          </>
         ) : (
           <div className="rail-anon">
             <Link className="btn btn--primary" to="/login">Log in</Link>

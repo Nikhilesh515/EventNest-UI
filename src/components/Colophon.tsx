@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuthStore } from '../lib/auth-store';
 
 const PAGE_NAMES: Record<string, string> = {
@@ -7,6 +7,7 @@ const PAGE_NAMES: Record<string, string> = {
   '/my-rsvps': 'My RSVPs',
   '/events/new': 'Create event',
   '/admin/permissions': 'Permissions',
+  '/admin/roles': 'Roles',
   '/admin/tags': 'Tags',
   '/styleguide': 'Styleguide',
 };
@@ -19,6 +20,7 @@ function getPageNumber(pathname: string): string {
   if (pathname === '/my-rsvps') return '03';
   if (pathname === '/admin/permissions') return '06';
   if (pathname === '/admin/tags') return '07';
+  if (pathname === '/admin/roles') return '07b';
   if (pathname === '/styleguide') return '08';
   return '01';
 }
@@ -35,7 +37,8 @@ function getPageName(pathname: string): string {
 
 export function Colophon() {
   const location = useLocation();
-  const { isAuthenticated, user } = useAuthStore();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuthStore();
   const isCover = location.pathname === '/login' || location.pathname === '/register';
 
   if (isCover) return null;
@@ -43,6 +46,12 @@ export function Colophon() {
   const pageNum = getPageNumber(location.pathname);
   const pageName = getPageName(location.pathname);
   const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin';
+  const isModOrAbove = user?.role === 'Moderator' || isAdmin;
+
+  function handleLogout() {
+    logout();
+    navigate('/login');
+  }
 
   return (
     <footer className="colophon" data-colophon>
@@ -54,12 +63,21 @@ export function Colophon() {
         <nav className="colophon__links" aria-label="Footer">
           <Link to="/events">Events</Link>
           {isAuthenticated && <Link to="/my-rsvps">My RSVPs</Link>}
-          {isAuthenticated && user?.role !== 'User' && <Link to="/my-events">My Events</Link>}
+          {isAuthenticated && isModOrAbove && <Link to="/my-events">My Events</Link>}
           {isAdmin && <Link to="/admin/permissions">Permissions</Link>}
+          {isModOrAbove && <Link to="/admin/tags">Tags</Link>}
+          {isAdmin && <Link to="/admin/roles">Roles</Link>}
           <Link to="/styleguide">Styleguide</Link>
         </nav>
         <span>A paper-craft festival, built by hand.</span>
       </div>
+      {isAuthenticated && (
+        <div className="colophon__row">
+          <button type="button" className="btn btn--secondary btn--sm" onClick={handleLogout}>
+            Log out
+          </button>
+        </div>
+      )}
     </footer>
   );
 }

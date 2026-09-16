@@ -9,6 +9,7 @@ import { Colophon } from './components/Colophon';
 import { ShellClassManager } from './components/ShellClassManager';
 import { RequireAuth } from './components/RequireAuth';
 import { RequireAnonymous } from './components/RequireAnonymous';
+import { RequireRole } from './components/RequireRole';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { EventsPage } from './pages/EventsPage';
@@ -19,6 +20,7 @@ import { CreateEventPage } from './pages/CreateEventPage';
 import { EditEventPage } from './pages/EditEventPage';
 import { AttendeesPage } from './pages/AttendeesPage';
 import { AdminPermissionsPage } from './pages/AdminPermissionsPage';
+import { AdminRolesPage } from './pages/AdminRolesPage';
 import { AdminTagsPage } from './pages/AdminTagsPage';
 import './styles/tokens.css';
 import './styles/tailwind.css';
@@ -46,7 +48,7 @@ function routeMeta(pathname: string): RouteMeta {
   if (pathname === '/my-events' || pathname === '/my-rsvps') {
     return { template: 'template--notebook', density: 'work' };
   }
-  if (pathname === '/admin/permissions' || pathname === '/admin/tags') {
+  if (pathname === '/admin/permissions' || pathname === '/admin/tags' || pathname === '/admin/roles') {
     return { template: 'template--ledger', density: 'admin' };
   }
   if (pathname === '/styleguide') {
@@ -79,8 +81,9 @@ function Shell() {
             <Route path="/events/:id/attendees" element={<RequireAuth><AttendeesPage /></RequireAuth>} />
             <Route path="/my-events" element={<RequireAuth><MyEventsPage /></RequireAuth>} />
             <Route path="/my-rsvps" element={<RequireAuth><MyRsvpsPage /></RequireAuth>} />
-            <Route path="/admin/permissions" element={<RequireAuth><AdminPermissionsPage /></RequireAuth>} />
-            <Route path="/admin/tags" element={<RequireAuth><AdminTagsPage /></RequireAuth>} />
+            <Route path="/admin/permissions" element={<RequireAuth><RequireRole roles={['Admin', 'SuperAdmin']}><AdminPermissionsPage /></RequireRole></RequireAuth>} />
+            <Route path="/admin/roles" element={<RequireAuth><RequireRole roles={['Admin', 'SuperAdmin']}><AdminRolesPage /></RequireRole></RequireAuth>} />
+            <Route path="/admin/tags" element={<RequireAuth><RequireRole roles={['Admin', 'SuperAdmin', 'Moderator']}><AdminTagsPage /></RequireRole></RequireAuth>} />
             <Route path="/styleguide" element={<div className="page-doc"><div className="page-doc__content"><h1>Styleguide</h1></div></div>} />
             <Route path="*" element={<EventsPage />} />
           </Routes>

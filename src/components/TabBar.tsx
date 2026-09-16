@@ -60,12 +60,15 @@ export function TabBar({ indexOpen, onOpenIndex }: TabBarProps) {
 
   if (isCover) return null;
 
+  const isModOrAbove = user?.role === 'Moderator' || user?.role === 'Admin' || user?.role === 'SuperAdmin';
+  const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin';
+
   const tabs = [
     { icon: 'calendar', label: 'Events', href: '/events', show: true },
     { icon: 'user', label: 'Log in', href: '/login', show: !isAuthenticated },
-    { icon: 'users', label: 'My events', href: '/my-events', show: isAuthenticated && user?.role !== 'User' },
+    { icon: 'users', label: 'My events', href: '/my-events', show: isAuthenticated && isModOrAbove },
     { icon: 'ticket', label: 'My RSVPs', href: '/my-rsvps', show: isAuthenticated },
-    { icon: 'plus', label: 'Create', href: '/events/new', show: isAuthenticated && (user?.role === 'Admin' || user?.role === 'SuperAdmin') && showCreate },
+    { icon: 'plus', label: 'Create', href: '/events/new', show: isAuthenticated && isAdmin && showCreate },
   ].filter((t) => t.show);
 
   return (

@@ -29,6 +29,7 @@ interface AuthState {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   hydrate: () => void;
+  refreshAccessToken: () => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -104,6 +105,32 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     } catch {
       // ignore
+    }
+  },
+
+  refreshAccessToken: async () => {
+    const refresh = localStorage.getItem('eventnest.refresh_token');
+    if (!refresh) return false;
+
+    try {
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: refresh }),
+      });
+
+      if (!res.ok) return false;
+
+      const data = (await res.json()) as AuthEnvelope;
+      localStorage.setItem('eventnest.access_token', data.result.accessToken);
+      localStorage.setItem('eventnest.refresh_token', data.result.refreshToken);
+      set({
+        accessToken: data.result.accessToken,
+        refreshToken: data.result.refreshToken,
+      });
+      return true;
+    } catch {
+      return false;
     }
   },
 }));
