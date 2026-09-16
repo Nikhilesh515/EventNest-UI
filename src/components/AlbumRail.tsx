@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuthStore } from '../lib/auth-store';
 import { ThemeToggle } from './ThemeToggle';
@@ -16,8 +17,7 @@ function getActivePage(pathname: string): string {
   if (pathname.startsWith('/events')) return '01';
   if (pathname === '/my-events') return '02';
   if (pathname === '/my-rsvps') return '03';
-  if (pathname === '/admin/permissions') return '06';
-  if (pathname === '/admin/tags') return '07';
+  if (pathname.startsWith('/admin')) return '07';
   if (pathname === '/styleguide') return '08';
   if (pathname === '/login') return '09';
   if (pathname === '/register') return '10';
@@ -38,6 +38,7 @@ export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
   const activePage = getActivePage(location.pathname);
+  const [systemExpanded, setSystemExpanded] = useState(location.pathname.startsWith('/admin'));
 
   const isAdmin = user?.role === 'Admin' || user?.role === 'SuperAdmin';
   const isModOrAbove = user?.role === 'Moderator' || isAdmin;
@@ -47,9 +48,6 @@ export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
     { page: '02', icon: 'users', label: 'My events', href: '/my-events' },
     { page: '03', icon: 'ticket', label: 'My RSVPs', href: '/my-rsvps' },
     { page: '04', icon: 'plus', label: 'Create event', href: '/events/new' },
-    { page: '06', icon: 'star', label: 'Permissions', href: '/admin/permissions' },
-    { page: '07', icon: 'tag', label: 'Tags', href: '/admin/tags' },
-    { page: '07b', icon: 'users', label: 'Roles', href: '/admin/roles' },
     { page: '08', icon: 'moon-lantern', label: 'Styleguide', href: '/styleguide' },
     { page: '09', icon: 'user', label: 'Log in', href: '/login' },
     { page: '10', icon: 'user', label: 'Register', href: '/register' },
@@ -59,15 +57,16 @@ export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
     if (tab.page === '09' || tab.page === '10') return !isAuthenticated;
     if (tab.page === '02') return isAuthenticated && isModOrAbove;
     if (tab.page === '04') return isAuthenticated && isAdmin;
-    if (tab.page === '06') return isAuthenticated && isAdmin;
-    if (tab.page === '07') return isAuthenticated && isModOrAbove;
-    if (tab.page === '07b') return isAuthenticated && isAdmin;
     return true;
   });
 
   function handleLogout() {
     logout();
     navigate('/login');
+  }
+
+  function handleSystemToggle() {
+    setSystemExpanded(!systemExpanded);
   }
 
   return (
@@ -101,6 +100,61 @@ export function AlbumIndexContent({ onNavigate }: { onNavigate?: () => void }) {
               </Link>
             </li>
           ))}
+          {isAuthenticated && isAdmin && (
+            <li>
+              <button
+                type="button"
+                className={`index-tab${activePage === '07' ? ' is-active' : ''}`}
+                data-page="07"
+                aria-expanded={systemExpanded}
+                onClick={handleSystemToggle}
+                style={{ width: '100%', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }}
+              >
+                <span className="index-tab__num tnum" aria-hidden="true">07</span>
+                <Icon name="star" size={20} />
+                <span className="index-tab__label">System</span>
+              </button>
+              {systemExpanded && (
+                <ul style={{ paddingLeft: 'var(--space-4)', marginTop: 'var(--space-1)' }}>
+                  <li>
+                    <Link
+                      className={`index-tab${location.pathname === '/admin/users' ? ' is-active' : ''}`}
+                      to="/admin/users"
+                      onClick={onNavigate}
+                      style={{ paddingLeft: 'var(--space-2)' }}
+                    >
+                      <Icon name="users" size={16} />
+                      <span className="index-tab__label">Users</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className={`index-tab${location.pathname === '/admin/roles' ? ' is-active' : ''}`}
+                      to="/admin/roles"
+                      onClick={onNavigate}
+                      style={{ paddingLeft: 'var(--space-2)' }}
+                    >
+                      <Icon name="users" size={16} />
+                      <span className="index-tab__label">Roles</span>
+                    </Link>
+                  </li>
+                  {isModOrAbove && (
+                    <li>
+                      <Link
+                        className={`index-tab${location.pathname === '/admin/tags' ? ' is-active' : ''}`}
+                        to="/admin/tags"
+                        onClick={onNavigate}
+                        style={{ paddingLeft: 'var(--space-2)' }}
+                      >
+                        <Icon name="tag" size={16} />
+                        <span className="index-tab__label">Tags</span>
+                      </Link>
+                    </li>
+                  )}
+                </ul>
+              )}
+            </li>
+          )}
         </ul>
       </nav>
 

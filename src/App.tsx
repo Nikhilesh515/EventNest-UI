@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router';
 import { useState } from 'react';
 import { SkipLink } from './components/SkipLink';
 import { AlbumRail } from './components/AlbumRail';
@@ -19,7 +19,7 @@ import { MyRsvpsPage } from './pages/MyRsvpsPage';
 import { CreateEventPage } from './pages/CreateEventPage';
 import { EditEventPage } from './pages/EditEventPage';
 import { AttendeesPage } from './pages/AttendeesPage';
-import { AdminPermissionsPage } from './pages/AdminPermissionsPage';
+import { AdminUsersPage } from './pages/AdminUsersPage';
 import { AdminRolesPage } from './pages/AdminRolesPage';
 import { AdminTagsPage } from './pages/AdminTagsPage';
 import './styles/tokens.css';
@@ -48,7 +48,7 @@ function routeMeta(pathname: string): RouteMeta {
   if (pathname === '/my-events' || pathname === '/my-rsvps') {
     return { template: 'template--notebook', density: 'work' };
   }
-  if (pathname === '/admin/permissions' || pathname === '/admin/tags' || pathname === '/admin/roles') {
+  if (pathname === '/admin/users' || pathname === '/admin/tags' || pathname === '/admin/roles') {
     return { template: 'template--ledger', density: 'admin' };
   }
   if (pathname === '/styleguide') {
@@ -81,7 +81,8 @@ function Shell() {
             <Route path="/events/:id/attendees" element={<RequireAuth><AttendeesPage /></RequireAuth>} />
             <Route path="/my-events" element={<RequireAuth><MyEventsPage /></RequireAuth>} />
             <Route path="/my-rsvps" element={<RequireAuth><MyRsvpsPage /></RequireAuth>} />
-            <Route path="/admin/permissions" element={<RequireAuth><RequireRole roles={['Admin', 'SuperAdmin']}><AdminPermissionsPage /></RequireRole></RequireAuth>} />
+            <Route path="/admin/users" element={<RequireAuth><RequireRole roles={['Admin', 'SuperAdmin']}><AdminUsersPage /></RequireRole></RequireAuth>} />
+            <Route path="/admin/permissions" element={<Navigate to="/admin/users" replace />} />
             <Route path="/admin/roles" element={<RequireAuth><RequireRole roles={['Admin', 'SuperAdmin']}><AdminRolesPage /></RequireRole></RequireAuth>} />
             <Route path="/admin/tags" element={<RequireAuth><RequireRole roles={['Admin', 'SuperAdmin', 'Moderator']}><AdminTagsPage /></RequireRole></RequireAuth>} />
             <Route path="/styleguide" element={<div className="page-doc"><div className="page-doc__content"><h1>Styleguide</h1></div></div>} />

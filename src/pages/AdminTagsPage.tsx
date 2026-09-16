@@ -78,7 +78,7 @@ export function AdminTagsPage() {
 
   return (
     <div className="stack-6">
-      <Breadcrumbs items={[{ label: 'Events', href: '/events' }, { label: 'Tags' }]} />
+      <Breadcrumbs items={[{ label: 'Events', href: '/events' }, { label: 'System', href: '/admin/users' }, { label: 'Tags' }]} />
 
       <header className="page-doc">
         <span className="washi page-doc__tape washi--shu" aria-hidden="true" />

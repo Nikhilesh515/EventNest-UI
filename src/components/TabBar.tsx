@@ -35,6 +35,11 @@ function TabIcon({ name }: { name: string }) {
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
     ),
+    star: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    ),
   };
   return <>{icons[name] || null}</>;
 }
@@ -44,6 +49,7 @@ function isActive(pathname: string, href: string): boolean {
   if (href === '/my-events') return pathname === '/my-events';
   if (href === '/my-rsvps') return pathname === '/my-rsvps';
   if (href === '/events/new') return pathname === '/events/new' || /\/events\/[^/]+\/edit/.test(pathname);
+  if (href === '/admin/users') return pathname.startsWith('/admin');
   return pathname === href;
 }
 
@@ -69,6 +75,7 @@ export function TabBar({ indexOpen, onOpenIndex }: TabBarProps) {
     { icon: 'users', label: 'My events', href: '/my-events', show: isAuthenticated && isModOrAbove },
     { icon: 'ticket', label: 'My RSVPs', href: '/my-rsvps', show: isAuthenticated },
     { icon: 'plus', label: 'Create', href: '/events/new', show: isAuthenticated && isAdmin && showCreate },
+    { icon: 'star', label: 'System', href: '/admin/users', show: isAuthenticated && isModOrAbove },
   ].filter((t) => t.show);
 
   return (

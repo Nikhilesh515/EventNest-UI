@@ -6,6 +6,7 @@ interface SheetPagerProps {
   size: number;
   total: number;
   sizeOptions?: number[];
+  label?: string;
   onPageChange: (page: number) => void;
   onSizeChange: (size: number) => void;
 }
@@ -16,6 +17,7 @@ export function SheetPager({
   size,
   total,
   sizeOptions = [9, 18],
+  label,
   onPageChange,
   onSizeChange,
 }: SheetPagerProps) {
@@ -44,7 +46,7 @@ export function SheetPager({
   return (
     <nav className="pager" aria-label="Sheet navigation">
       <span className="pager-meta tnum">
-        {total} {total === 1 ? 'event' : 'events'}
+        {total} {label ?? (total === 1 ? 'event' : 'events')}
       </span>
       <div className="pager__pages">
         <button
