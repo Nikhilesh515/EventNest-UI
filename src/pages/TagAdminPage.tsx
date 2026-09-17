@@ -66,10 +66,10 @@ export default function TagAdminPage() {
         <PunchTable
           caption="Tags"
           columns={[
-            { key: 'name', header: 'Name' },
-            { key: 'colour', header: 'Colour' },
-            { key: 'created', header: 'Created' },
-            { key: 'actions', header: 'Actions' },
+            { key: 'name', header: 'Name', width: '30%' },
+            { key: 'colour', header: 'Colour', width: '20%' },
+            { key: 'created', header: 'Created', width: '22%' },
+            { key: 'actions', header: 'Actions', width: '28%' },
           ]}
         >
           {rows.map((tag) => (

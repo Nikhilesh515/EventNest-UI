@@ -193,12 +193,12 @@ export default function UserAdminPage() {
         <PunchTable
           caption="Users"
           columns={[
-            { key: 'user', header: 'User' },
-            { key: 'email', header: 'Email' },
-            { key: 'role', header: 'Role' },
-            { key: 'status', header: 'Status' },
-            { key: 'created', header: 'Created' },
-            { key: 'actions', header: 'Actions' },
+            { key: 'user', header: 'User', width: '22%' },
+            { key: 'email', header: 'Email', width: '24%' },
+            { key: 'role', header: 'Role', width: '12%' },
+            { key: 'status', header: 'Status', width: '10%' },
+            { key: 'created', header: 'Created', width: '14%' },
+            { key: 'actions', header: 'Actions', width: '18%' },
           ]}
         >
           {rows.map((user) => (

@@ -211,6 +211,13 @@ export default function AttendeesPage() {
                 <div className="table-scroll guestbook-table">
                   <table className="table-punch">
                     <caption className="sr-only">Guest list for {event.title}</caption>
+                    <colgroup>
+                      <col style={{ width: '28%' }} />
+                      <col style={{ width: '12%' }} />
+                      <col style={{ width: '10%' }} />
+                      <col style={{ width: '28%' }} />
+                      <col style={{ width: '22%' }} />
+                    </colgroup>
                     <thead>
                       <tr>
                         <th scope="col">Guest</th>

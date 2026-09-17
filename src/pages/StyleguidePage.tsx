@@ -867,6 +867,13 @@ export default function StyleguidePage() {
             <div className="table-scroll">
               <table className="table-punch">
                 <caption className="sr-only">Punch-card demo</caption>
+                <colgroup>
+                  <col style={{ width: '28%' }} />
+                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '28%' }} />
+                  <col style={{ width: '22%' }} />
+                </colgroup>
                 <thead>
                   <tr>
                     <th scope="col">Guest</th>

@@ -67,10 +67,10 @@ export default function RoleAdminPage() {
         <PunchTable
           caption="Roles"
           columns={[
-            { key: 'role', header: 'Role' },
-            { key: 'permissions', header: 'Permissions' },
-            { key: 'users', header: 'Users' },
-            { key: 'actions', header: 'Actions' },
+            { key: 'role', header: 'Role', width: '28%' },
+            { key: 'permissions', header: 'Permissions', width: '18%' },
+            { key: 'users', header: 'Users', width: '14%' },
+            { key: 'actions', header: 'Actions', width: '22%' },
           ]}
         >
           {rows.map((role) => (
