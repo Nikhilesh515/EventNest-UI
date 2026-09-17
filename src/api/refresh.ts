@@ -1,4 +1,6 @@
 import { apiClient } from '@/api/client'
+import { setAccessToken } from '@/lib/storage'
+import type { AuthResponseDto } from '@/types'
 import { AUTH } from './endpoints'
 
 let refreshInFlight: Promise<void> | null = null
@@ -12,7 +14,10 @@ function redirectToLogin(): void {
 }
 
 export async function refreshTokens(): Promise<void> {
-  await apiClient.post(AUTH.refresh, undefined, { withCredentials: true })
+  const { data } = await apiClient.post<AuthResponseDto>(AUTH.refresh, undefined, {
+    withCredentials: true,
+  })
+  if (data?.accessToken) setAccessToken(data.accessToken)
 }
 
 export function getRefreshInFlight(): Promise<void> | null {

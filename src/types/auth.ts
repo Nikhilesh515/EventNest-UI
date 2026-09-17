@@ -19,6 +19,7 @@ export interface AuthResponseDto {
 
 export interface AuthResponse {
   user: UserDto
+  accessToken: string
 }
 
 export interface SessionUser {
@@ -31,5 +32,6 @@ export interface SessionUser {
 export function toAuthResponse(dto: AuthResponseDto): AuthResponse {
   return {
     user: dto.user,
+    accessToken: dto.accessToken,
   }
 }

@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (email: string, password: string) => {
       const response = await authApi.login({ email, password })
-      setAccessToken('cookie-session')
+      setAccessToken(response.accessToken)
       const effective = await loadPermissions(response.user)
       setUser(response.user)
       setPermissions(effective)
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: input.email,
         password: input.password,
       })
-      setAccessToken('cookie-session')
+      setAccessToken(response.accessToken)
       const effective = await loadPermissions(response.user)
       setUser(response.user)
       setPermissions(effective)

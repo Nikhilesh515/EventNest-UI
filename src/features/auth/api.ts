@@ -1,5 +1,6 @@
 import { apiClient } from '@/api/client'
 import { AUTH, USERS } from '@/api/endpoints'
+import { setAccessToken } from '@/lib/storage'
 import { toAuthResponse } from '@/types'
 import type {
   AuthResponse,
@@ -41,7 +42,10 @@ export async function register(body: RegisterRequest): Promise<AuthResponse> {
 }
 
 export async function refresh(): Promise<void> {
-  await apiClient.post(AUTH.refresh)
+  const { data } = await apiClient.post<AuthResponseDto | undefined>(AUTH.refresh, undefined, {
+    withCredentials: true,
+  })
+  if (data?.accessToken) setAccessToken(data.accessToken)
 }
 
 export async function logout(): Promise<void> {

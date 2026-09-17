@@ -45,6 +45,9 @@ export function attachResponseInterceptors(client: AxiosInstance): void {
             const inflight = existing ?? refreshTokens().finally(() => setRefreshInFlight(null))
             setRefreshInFlight(inflight)
             await inflight
+            if (config.headers.has('Authorization')) {
+              config.headers.delete('Authorization')
+            }
             return await client.request(config)
           } catch {
             redirectToLogin()
