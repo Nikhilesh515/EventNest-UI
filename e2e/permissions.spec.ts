@@ -69,6 +69,7 @@ function envelope(result: unknown, status = 200) {
 }
 
 async function stubApi(page: Page, opts: { permissions?: unknown[] } = {}) {
+  await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 204, headers: cors }))
   await page.route('**/api/users/me', (route) => route.fulfill(envelope(actor)))
   await page.route('**/api/users/*/permissions', (route) => route.fulfill(envelope([])))
   await page.route('**/api/permissions/user/**', (route) => route.fulfill(envelope(catalog)))

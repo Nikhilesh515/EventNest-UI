@@ -88,6 +88,7 @@ const requests: { method: string; url: string; body: unknown }[] = []
 async function stubApi(page: Page, opts: StubOptions = {}) {
   requests.length = 0
 
+  await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 204, headers: cors }))
   await page.route('**/api/users/me', (route) => route.fulfill(envelope(admin)))
   await page.route('**/api/permissions/user/**', (route) => route.fulfill(envelope(adminPermissions)))
   await page.route('**/api/roles**', (route: Route) => {

@@ -160,6 +160,7 @@ async function stubApi(page: Page, opts: StubOptions = {}) {
     { name: 'Users.Manage' },
   ]
 
+  await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 204, headers: cors }))
   await page.route('**/api/permissions/user/**', (route) => route.fulfill(envelope(permissions)))
   await page.route('**/api/roles**', (route) => route.fulfill(envelope(roles)))
 

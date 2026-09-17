@@ -49,6 +49,7 @@ async function fulfillJson(route: Route, result: unknown, status = 200) {
 }
 
 async function stubApi(page: Page) {
+  await page.route('**/api/auth/refresh', (route) => fulfillJson(route, null, 204))
   await page.route('**/api/users/me', (route) => fulfillJson(route, guest))
   await page.route('**/api/permissions/user/**', (route) => fulfillJson(route, null, 404))
   await page.route('**/api/users/*/rsvps**', (route) => fulfillJson(route, []))

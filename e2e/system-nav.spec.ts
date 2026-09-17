@@ -82,6 +82,7 @@ async function stub(
   permissions: unknown[],
   withRoles = false,
 ) {
+  await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 204, headers: cors }))
   await page.route('**/api/users**', (route) => {
     if (route.request().method() === 'GET' && route.request().url().endsWith('/api/users')) {
       return route.fulfill(envelope([]))

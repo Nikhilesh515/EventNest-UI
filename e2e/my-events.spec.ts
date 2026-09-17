@@ -55,6 +55,7 @@ async function fulfillJson(route: Route, result: unknown, status = 200) {
 }
 
 async function stubApi(page: Page, list: unknown[]) {
+  await page.route('**/api/auth/refresh', (route) => fulfillJson(route, null, 204))
   await page.route('**/api/users/me', (route) => fulfillJson(route, admin))
   await page.route('**/api/permissions/user/**', (route) => fulfillJson(route, permissions))
   await page.route('**/api/tags**', (route) => fulfillJson(route, tags))

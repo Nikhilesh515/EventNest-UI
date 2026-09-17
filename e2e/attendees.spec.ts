@@ -93,6 +93,7 @@ async function stubApi(
   list: unknown[],
   opts: { user?: unknown; permissions?: unknown[]; event?: unknown } = {},
 ) {
+  await page.route('**/api/auth/refresh', (route) => fulfillJson(route, null, 204))
   await page.route('**/api/users/me', (route) => fulfillJson(route, opts.user ?? user))
   await page.route('**/api/permissions/user/**', (route) =>
     fulfillJson(route, opts.permissions ?? permissions),

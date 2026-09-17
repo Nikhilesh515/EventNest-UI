@@ -50,6 +50,7 @@ async function stubApi(
   list: unknown[],
   opts: { permissions?: unknown[]; onCreate?: boolean } = {},
 ) {
+  await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 204, headers: cors }))
   await page.route('**/api/users/me', (route) => route.fulfill(envelope(admin)))
   await page.route('**/api/permissions/user/**', (route) =>
     route.fulfill(envelope(opts.permissions ?? allPermissions)),
