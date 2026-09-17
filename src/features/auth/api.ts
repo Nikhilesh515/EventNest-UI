@@ -42,9 +42,7 @@ export async function register(body: RegisterRequest): Promise<AuthResponse> {
 }
 
 export async function refresh(): Promise<void> {
-  const { data } = await apiClient.post<AuthResponseDto | undefined>(AUTH.refresh, undefined, {
-    withCredentials: true,
-  })
+  const { data } = await apiClient.post<AuthResponseDto | undefined>(AUTH.refresh)
   if (data?.accessToken) setAccessToken(data.accessToken)
 }
 
