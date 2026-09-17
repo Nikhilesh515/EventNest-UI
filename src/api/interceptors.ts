@@ -1,24 +1,14 @@
 import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { AppApiError, normalizeError } from './errors'
-import { getAccessToken, clearSession } from '@/lib/storage'
-import { refreshTokens } from './refresh'
-
-let refreshInFlight: Promise<void> | null = null
-
-interface RetriableConfig extends InternalAxiosRequestConfig {
-  _retried?: boolean
-}
+import { refreshTokens, getRefreshInFlight, setRefreshInFlight, redirectToLogin } from './refresh'
+import { getAccessToken } from '@/lib/storage'
 
 function isEnvelope(value: unknown): value is { success: boolean; result: unknown } {
   return typeof value === 'object' && value !== null && 'success' in value && 'result' in value
 }
 
-function redirectToLogin(): void {
-  if (typeof window === 'undefined') return
-  const returnUrl = encodeURIComponent(window.location.pathname + window.location.search)
-  if (!window.location.pathname.startsWith('/login')) {
-    window.location.assign(`/login?returnUrl=${returnUrl}`)
-  }
+interface RetriableConfig extends InternalAxiosRequestConfig {
+  _retried?: boolean
 }
 
 export function attachRequestInterceptors(client: AxiosInstance): void {
@@ -51,15 +41,12 @@ export function attachResponseInterceptors(client: AxiosInstance): void {
         if (status === 401 && config && !config._retried && !url.includes('/api/auth/')) {
           config._retried = true
           try {
-            refreshInFlight ??= refreshTokens().finally(() => {
-              refreshInFlight = null
-            })
-            await refreshInFlight
-            const token = getAccessToken()
-            if (token) config.headers.set('Authorization', `Bearer ${token}`)
+            const existing = getRefreshInFlight()
+            const inflight = existing ?? refreshTokens().finally(() => setRefreshInFlight(null))
+            setRefreshInFlight(inflight)
+            await inflight
             return await client.request(config)
           } catch {
-            clearSession()
             redirectToLogin()
             throw new AppApiError({
               status: 401,

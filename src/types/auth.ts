@@ -11,40 +11,13 @@ export interface RegisterRequest {
   password: string
 }
 
-export interface LoginRequestDto {
-  email: string
-  password: string
-}
-
-export interface RegisterRequestDto {
-  displayName: string
-  email: string
-  password: string
-}
-
-export interface RefreshRequestDto {
-  refreshToken: string
-}
-
-export interface LogoutRequestDto {
-  refreshToken: string
-}
-
-export interface AuthTokens {
+export interface AuthResponseDto {
   accessToken: string
-  refreshToken: string
   expiresIn: number
+  user: UserDto
 }
 
 export interface AuthResponse {
-  user: UserDto
-  tokens: AuthTokens
-}
-
-export interface AuthResponseDto {
-  accessToken: string
-  refreshToken: string
-  expiresIn: number
   user: UserDto
 }
 
@@ -58,10 +31,5 @@ export interface SessionUser {
 export function toAuthResponse(dto: AuthResponseDto): AuthResponse {
   return {
     user: dto.user,
-    tokens: {
-      accessToken: dto.accessToken,
-      refreshToken: dto.refreshToken,
-      expiresIn: dto.expiresIn,
-    },
   }
 }

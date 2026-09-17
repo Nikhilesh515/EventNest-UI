@@ -5,8 +5,6 @@ import type {
   AuthResponse,
   AuthResponseDto,
   LoginRequest,
-  LogoutRequestDto,
-  RefreshRequestDto,
   RegisterRequest,
   UserDto,
 } from '@/types'
@@ -42,13 +40,12 @@ export async function register(body: RegisterRequest): Promise<AuthResponse> {
   return toAuthResponse({ ...data, user: toUser(data.user as unknown as ApiUserDto) })
 }
 
-export async function refresh(body: RefreshRequestDto): Promise<AuthResponse> {
-  const { data } = await apiClient.post<AuthResponseDto>(AUTH.refresh, body)
-  return toAuthResponse({ ...data, user: toUser(data.user as unknown as ApiUserDto) })
+export async function refresh(): Promise<void> {
+  await apiClient.post(AUTH.refresh)
 }
 
-export async function logout(body: LogoutRequestDto): Promise<void> {
-  await apiClient.post(AUTH.logout, body)
+export async function logout(): Promise<void> {
+  await apiClient.post(AUTH.logout, undefined, { withCredentials: true })
 }
 
 export async function getCurrentUser(): Promise<UserDto> {
