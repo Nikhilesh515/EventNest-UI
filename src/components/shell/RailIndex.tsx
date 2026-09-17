@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthContext'
 import { EventNestPermissions, isAdminRole } from '@/lib/permissions'
 import { activeAlbumPage, currentEventId } from '@/lib/routes'
-import { env } from '@/lib/env'
 import { cn } from '@/lib/cn'
 import { Icon } from '@/components/icons/Icon'
 import { IndexTab } from './IndexTab'
@@ -80,7 +79,6 @@ export function RailIndex({ activePath, onNavigate }: RailIndexProps) {
       href: eventId ? `/events/${eventId}/attendees` : '/events',
       show: hasPermission(EventNestPermissions.RSVPs.Manage) && Boolean(eventId),
     },
-    { page: '07', icon: 'moon-lantern', label: 'Styleguide', href: '/styleguide', show: env.enableStyleguide },
     { page: '08', icon: 'user', label: 'Log in', href: '/login', show: !authed },
     { page: '09', icon: 'user', label: 'Register', href: '/register', show: !authed },
   ]

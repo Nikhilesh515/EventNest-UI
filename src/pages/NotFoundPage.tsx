@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 
 import { Mascot } from '@/components/brand/Mascot'
-import { env } from '@/lib/env'
 
 export default function NotFoundPage() {
   return (
@@ -19,11 +18,6 @@ export default function NotFoundPage() {
           <Link className="btn btn--primary" to="/events">
             Back to events
           </Link>
-          {env.enableStyleguide ? (
-            <Link className="btn btn--secondary" to="/styleguide">
-              Visit the styleguide
-            </Link>
-          ) : null}
         </div>
       </div>
     </div>

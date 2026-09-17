@@ -189,19 +189,12 @@ test('tabbar System entry navigates to an admin page', async ({ page }) => {
   await expect(page).toHaveURL(/\/admin\/users/)
 })
 
-test('styleguide entry stays wired to the feature flag', async ({ page }) => {
+test('styleguide entry is not exposed in the album rail', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await bootstrap(page, ADMIN_ID)
   await stub(page, admin, adminPermissions, true)
   await page.goto('/events')
 
-  const rail = page.locator('.album-rail')
-  const styleguide = rail.locator('.index-tab', { hasText: 'Styleguide' })
-  const enabled = process.env.VITE_ENABLE_STYLEGUIDE !== 'false'
-  if (enabled) {
-    await expect(styleguide).toHaveCount(1)
-  } else {
-    await expect(styleguide).toHaveCount(0)
-  }
+  await expect(page.locator('.album-rail .index-tab', { hasText: 'Styleguide' })).toHaveCount(0)
 })
 

@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 
 import { useAuth } from '@/features/auth/AuthContext'
-import { env } from '@/lib/env'
 import { EventNestPermissions, isAdminRole } from '@/lib/permissions'
 
 interface ColophonProps {
@@ -35,7 +34,6 @@ export function Colophon({ stamp }: ColophonProps) {
           {hasPermission(EventNestPermissions.Tags.View) ? (
             <Link to="/admin/tags">Tags</Link>
           ) : null}
-          {env.enableStyleguide ? <Link to="/styleguide">Styleguide</Link> : null}
         </nav>
         <span>A paper-craft festival, built by hand.</span>
       </div>

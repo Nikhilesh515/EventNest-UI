@@ -66,9 +66,9 @@ for (const viewport of VIEWPORTS) {
       await expect(back).toHaveClass(/btn--primary/)
       await expect(back).toHaveAttribute('href', '/events')
 
-      const guide = page.locator('.empty .cluster .btn', { hasText: 'Visit the styleguide' })
-      await expect(guide).toHaveClass(/btn--secondary/)
-      await expect(guide).toHaveAttribute('href', '/styleguide')
+      await expect(
+        page.locator('.empty .cluster .btn', { hasText: 'Visit the styleguide' }),
+      ).toHaveCount(0)
 
       await expect(page).toHaveTitle('Not found · EventNest')
     })
