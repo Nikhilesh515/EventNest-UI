@@ -242,7 +242,7 @@
 .topbar__spacer { flex: 1; }
 .topbar .icon-btn, .rail-theme { color: inherit; }
 @media (min-width: 1024px) { .topbar { display: none !important; } }
-.shell-cover .topbar { display: flex !important; }
+.shell-cover .topbar { display: flex !important; background: transparent; block-size: 62px; }
 .shell-cover .topbar__index { display: none; }
 
 .tabbar {

@@ -1,5 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo } from 'react'
 import type { ReactNode } from 'react'
+import hotToast from 'react-hot-toast'
+
+import { Toast } from '@/components/overlays/Toast'
 
 export type ToastKind = 'success' | 'error' | 'info'
 
@@ -22,25 +25,30 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null)
 
-let toastSeq = 0
-
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([])
-
   const dismiss = useCallback((id: string) => {
-    setToasts((current) => current.filter((toast) => toast.id !== id))
+    hotToast.dismiss(id)
   }, [])
 
   const push = useCallback((options: ToastOptions) => {
-    toastSeq += 1
-    const id = `toast-${toastSeq}`
-    setToasts((current) => [...current.slice(-2), { ...options, id }])
+    const kind = options.kind ?? 'info'
+    const duration = options.durationMs ?? (kind === 'error' ? 8000 : kind === 'info' ? 4500 : 5000)
+
+    const id = hotToast.custom(
+      (t) => (
+        <Toast
+          toast={{ id: t.id, ...options }}
+          onDismiss={() => hotToast.dismiss(t.id)}
+        />
+      ),
+      { duration, id: options.title },
+    )
     return id
   }, [])
 
   const value = useMemo<ToastContextValue>(
-    () => ({ toasts, push, dismiss }),
-    [toasts, push, dismiss],
+    () => ({ toasts: [], push, dismiss }),
+    [push, dismiss],
   )
 
   return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>

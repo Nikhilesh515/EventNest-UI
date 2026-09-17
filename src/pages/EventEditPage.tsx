@@ -59,6 +59,8 @@ export default function EventEditPage() {
               title: 'Published!',
               body: 'The daruma has both eyes now. ●●',
             })
+          } else {
+            push({ kind: 'success', title: 'Event updated', body: 'Changes saved.' })
           }
           navigate(`/events/${id}`)
         }}

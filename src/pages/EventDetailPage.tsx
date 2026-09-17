@@ -286,7 +286,9 @@ export default function EventDetailPage() {
         onCancel={() => setConfirm(null)}
         onConfirm={() => {
           setConfirm(null)
-          void statusMutations.cancel()
+          void statusMutations.cancel().then(() => {
+            push({ kind: 'info', title: 'Event cancelled', body: 'Guests will see it\'s off.' })
+          })
         }}
       />
       <ConfirmDialog
@@ -297,7 +299,9 @@ export default function EventDetailPage() {
         onCancel={() => setConfirm(null)}
         onConfirm={() => {
           setConfirm(null)
-          void statusMutations.complete()
+          void statusMutations.complete().then(() => {
+            push({ kind: 'success', title: 'Event completed', body: 'Moved to Completed.' })
+          })
         }}
       />
       <ConfirmDialog
